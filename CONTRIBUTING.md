@@ -20,9 +20,11 @@ that address issues outside the core GraphQL specifications.
 
 Each `GAP-NNNN` folder must include:
 
-- `DRAFT.md` — the working document of the proposal/specification
+- `DRAFT.md` — the working document of the proposal/specification, written in
+  [`spec-md`](https://spec-md.com/) format
 - `README.md` — a brief overview, why it exists, current status, challenges,
-  drawbacks, and related resources/prior art
+  drawbacks, and related resources/prior art (written in GitHub Flavoured
+  Markdown)
 - `metadata.yml` — maintainers, status, and related metadata
 
 #### `metadata.yml`
