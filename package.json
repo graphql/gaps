@@ -1,0 +1,10 @@
+{
+  "name": "@graphql/gaps",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "prettier": "^3.8.1"
+  }
+}
