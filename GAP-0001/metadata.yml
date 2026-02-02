@@ -1,0 +1,8 @@
+id: 1
+title: Abstract Type Filter
+status: draft
+authors:
+  - "Mark Larah <mark@larah.me>"
+  - "Benjie Gillam <code@benjiegillam.com>"
+sponsor: "@magicmark"
+discussion: "https://github.com/graphql/graphql-wg/pull/1817"
