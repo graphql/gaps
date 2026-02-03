@@ -2,16 +2,24 @@
   "name": "@graphql/gaps",
   "private": true,
   "homepage": "https://gaps.graphql.org/",
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "format": "prettier --write .",
     "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1",
     "test:format": "prettier --check . || npm run suggest:format",
-    "test:spelling": "cspell \"spec/**/*.md\" README.md LICENSE.md"
+    "test:spelling": "cspell \"spec/**/*.md\" README.md LICENSE.md",
+    "test:structure": "find . -type d -name 'GAP-*' -exec ./scripts/validate-structure.js {} \\;"
   },
   "devDependencies": {
+    "ajv": "^8.17.1",
     "cspell": "5.9.1",
     "nodemon": "2.0.20",
     "prettier": "^3.8.1",
-    "spec-md": "^3.1.0"
+    "spec-md": "^3.1.0",
+    "validator": "^13.12.0",
+    "yaml": "^2.7.0"
   }
 }
