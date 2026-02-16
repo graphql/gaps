@@ -26,7 +26,10 @@ const metadataSchema = JSON.parse(readFileSync(schemaPath, "utf8"));
 const ajv = new Ajv({ allErrors: true });
 const validateMetadataSchema = ajv.compile(metadataSchema);
 
+let errorSeen = 0;
+
 function error(gapName, message) {
+  errorSeen += 1;
   console.error(`${gapName}: ${message}`);
   process.exit(1);
 }
@@ -123,8 +126,7 @@ function validateMetadata(dirPath, gapName) {
 
 function validateGapDirectory(dirPath) {
   if (!existsSync(dirPath) || !statSync(dirPath).isDirectory()) {
-    console.error(`Must be a directory: ${dirPath}`);
-    process.exit(1);
+    throw new Error(`Not a directory: ${dirPath}`);
   }
 
   // Validate directory naming
@@ -143,31 +145,24 @@ function main() {
   const { positionals } = parseArgs({ allowPositionals: true, strict: true });
 
   if (positionals.length !== 1) {
-    console.error("Usage: ./scripts/validate-structure.js <directory>");
-    process.exit(1);
+    throw new Error("Usage: ./scripts/validate-structure.js <directory>");
   }
 
   const searchDir = positionals[0];
 
   if (!existsSync(searchDir) || !statSync(searchDir).isDirectory()) {
-    console.error(`Must be a directory: ${searchDir}`);
-    process.exit(1);
+    throw new Error(`Not a directory: ${searchDir}`);
   }
 
-  // Discover and validate all GAP directories using glob
-  const pattern = join(searchDir, "GAP-*");
-  const gapDirs = globSync(pattern).filter((path) => statSync(path).isDirectory());
-
-  if (gapDirs.length === 0) {
-    console.error(`No GAP directories found in ${searchDir}`);
-    process.exit(1);
-  }
-
+  const gapDirs = globSync("GAP-*", { cwd: searchDir });
   console.log(`Found ${gapDirs.length} GAP directories`);
 
   for (const dir of gapDirs) {
     validateGapDirectory(dir);
   }
+
+  // return an exit code
+  return errorSeen > 0 ? 1 : 0;
 }
 
-main();
+process.exit(main())
