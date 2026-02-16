@@ -11,7 +11,7 @@
     "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1",
     "test:format": "prettier --check . || npm run suggest:format",
     "test:spelling": "cspell \"spec/**/*.md\" README.md LICENSE.md",
-    "test:structure": "find . -maxdepth 1 -type d -name 'GAP-*' -exec ./scripts/validate-structure.js {} \\;"
+    "test:structure": "./scripts/validate-structure.js ."
   },
   "devDependencies": {
     "ajv": "^8.17.1",
