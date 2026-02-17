@@ -15,6 +15,14 @@ includes additional navigational assistance and cross-linking:
 
 https://gaps.graphql.org/
 
+## GAP Numbering
+
+GAPs use number ranges to categorize different types of proposals:
+
+- **1XXX** — Community directive specifications
+
+Other ranges may be added in the future as new categories are identified.
+
 ## Repository structure
 
 Each proposal lives in its own `GAP-NNNN` folder and must include:
