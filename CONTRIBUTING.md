@@ -3,6 +3,15 @@
 Thanks for your interest in contributing! GAPs are community-driven proposals
 that address issues outside the core GraphQL specifications.
 
+## GAP Number Ranges
+
+GAPs use number ranges to categorize different types of proposals:
+
+- **1XXX** — Community directive specifications
+
+Other ranges may be added in the future as new categories are identified. The
+TSC are responsible for creating new GAP ranges.
+
 ## Filing a GAP
 
 1. File an issue outlining the topic for public vetting.
@@ -11,8 +20,8 @@ that address issues outside the core GraphQL specifications.
    author.
 3. Find a sponsor with merge rights (this may be one of the authors).
 4. Once approved by the authors and sponsor, GAP editors assign the GAP a
-   number (not necessarily the next available number), configure `CODEOWNERS`,
-   and merge.
+   number from the appropriate range (not necessarily the next available
+   number), configure `CODEOWNERS`, and merge.
 5. GAP numbers never change. If a proposal needs significant changes, create a
    new GAP and deprecate the old one.
 
