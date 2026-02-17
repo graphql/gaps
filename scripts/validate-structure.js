@@ -58,6 +58,28 @@ function validateReadmeExists(dirPath, gapName) {
   }
 }
 
+function validateDraftExists(dirPath, gapName) {
+  const draftFilePath = join(dirPath, "DRAFT.md");
+  const draftDirPath = join(dirPath, "DRAFT");
+  const draftIndexPath = join(draftDirPath, "Index.md");
+
+  const hasDraftFile = existsSync(draftFilePath);
+  const hasDraftDir = existsSync(draftDirPath) && statSync(draftDirPath).isDirectory();
+  const hasDraftIndex = hasDraftDir && existsSync(draftIndexPath);
+
+  if (!hasDraftFile && !hasDraftDir) {
+    error(gapName, "No DRAFT.md file or DRAFT/ directory found");
+  }
+
+  if (hasDraftFile && hasDraftDir) {
+    error(gapName, "Both DRAFT.md and DRAFT/ directory exist - only one is allowed");
+  }
+
+  if (hasDraftDir && !hasDraftIndex) {
+    error(gapName, "DRAFT/ directory exists but DRAFT/Index.md is missing");
+  }
+}
+
 function validateMetadata(dirPath, gapName) {
   const metadataPath = join(dirPath, "metadata.yml");
 
@@ -147,6 +169,9 @@ function main() {
 
   // Validate README.md exists
   validateReadmeExists(dirPath, gapName);
+
+  // Validate DRAFT.md or DRAFT/ exists
+  validateDraftExists(dirPath, gapName);
 
   // Validate metadata.yml
   validateMetadata(dirPath, gapName);
