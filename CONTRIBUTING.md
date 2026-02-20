@@ -29,12 +29,24 @@ TSC are responsible for creating new GAP ranges.
 
 Each `GAP-NNNN` folder must include:
 
-- `DRAFT.md` — the working document of the proposal/specification, written in
-  [`spec-md`](https://spec-md.com/) format
+- `DRAFT.md` or `DRAFT/` — the working document of the proposal/specification,
+  written in [`spec-md`](https://spec-md.com/) format (see below)
 - `README.md` — a brief overview, why it exists, current status, challenges,
   drawbacks, and related resources/prior art (written in GitHub Flavoured
   Markdown)
 - `metadata.yml` — maintainers, status, and related metadata
+
+#### Single-file vs split-file format
+
+Specifications may be authored as either:
+
+- **Single-file**: A single `DRAFT.md` file containing the entire specification.
+- **Split-file**: A `DRAFT/` directory with an `Index.md` entry point that may
+  include other files. This is useful for larger specifications that benefit
+  from being organized into multiple sections.
+
+For split-file specs, the `DRAFT/index.md` file serves as the main entry point
+and should use spec-md's import syntax to include other files as needed.
 
 #### `metadata.yml`
 
@@ -76,11 +88,15 @@ by the TSC. The authors are responsible for guiding contribution to the GAP.
 
 ### Versioning
 
-To release a version of a GAP, copy the current `DRAFT.md` into a `versions`
-folder named for the year and month of release:
+To release a version of a GAP, copy the current draft into a `versions` folder
+named for the year and month of release:
 
 ```bash
+# Single-file format
 cp GAP-NNNN/DRAFT.md GAP-NNNN/versions/YYYY-MM.md
+
+# Split-file format
+cp -r GAP-NNNN/DRAFT GAP-NNNN/versions/YYYY-MM
 ```
 
 Rules:
