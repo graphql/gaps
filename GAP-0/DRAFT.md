@@ -96,9 +96,7 @@ When `@mock` is applied to a field, the *mock value* must always be included in
 the response, regardless of other directives present on the same field. In
 particular, `@mock` takes precedence over `@skip` and `@include` — the mock
 data is always returned, irrespective of whether the field would otherwise be
-skipped or included based on those directives' conditions. Because the client
-controls mock resolution locally before yielding to the application, the
-server's handling of `@skip`/`@include` is not relevant for mocked fields.
+skipped or included based on those directives' conditions.
 
 Mock values must **not** be generated dynamically at runtime. Mock values must
 be resolved from the *mock file*.
