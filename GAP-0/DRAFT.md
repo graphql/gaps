@@ -78,7 +78,7 @@ directive @mock(
 
 `@mock` accepts two mutually exclusive arguments: {"variant"} and {"value"}.
 Exactly one of these arguments must be provided. Providing both {"variant"} and
-{"value"} in the same `@mock` application is a validation error.
+{"value"} in the same `@mock` directive is a validation error.
 
 ### variant
 
