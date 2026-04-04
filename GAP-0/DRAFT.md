@@ -154,7 +154,7 @@ that does not yet exist.
 ## Mock File Location
 
 The *mock file* must be named `{Name}.json`, where `{Name}` is the name of the
-operation or fragment for which the mock values may be used.
+operation or fragment within which the mock values may be used.
 
 To avoid mock file naming collisions, this specification requires that all
 operation and fragment names within a project are unique.
