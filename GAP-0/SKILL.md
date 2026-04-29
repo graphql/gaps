@@ -1,5 +1,5 @@
 ---
-name: gql-mock
+name: graphql-mock
 description: Create and edit mock values for GraphQL operations using the @mock directive
 ---
 
@@ -25,8 +25,8 @@ A "mock variant" is an object containing the following attributes:
 
 - **`data`** (required): The mock value - the raw data to be returned - defined by https://spec.graphql.org/September2025/#sec-Data.
 - **`errors`**: May contain an errors array - defined by https://spec.graphql.org/September2025/#sec-Errors.
-- **`extensions`**: May contain aribtrary data - defined by https://spec.graphql.org/September2025/#sec-Extensions.
-- **`__appliesTo__`** (required): The schema coordinate for which the mock value is valid - defined by https://spec.graphql.org/September2025/#sec-Schema-Coordinates.
+- **`extensions`**: May contain arbitrary data - defined by https://spec.graphql.org/September2025/#sec-Extensions.
+- **`__path__`** (required): The field path within the operation or fragment where `@mock` is applied. A dot-separated string of field names (or aliases, where present) relative to the root. For `@mock` on an operation root, use the root operation type name (e.g. `"Query"`, `"Mutation"`, `"Subscription"`). When a field has an alias, use the alias in the path.
 - **`__description__`**: A natural language description of the data being returned.
 - **`__metadata__`**: May contain a key/value mapping of arbitrary data.
 
@@ -34,14 +34,14 @@ A "mock variant" is an object containing the following attributes:
 
 ```json
 {
-  "5-star-business: {
+  "5-star-business": {
     "data": {
       "business": {
         "name": "The Great British Bakery",
         "rating": 5.0
       }
     },
-    "__appliesTo__": "Query",
+    "__path__": "Query",
     "__description__": "A delicious bakery with a rating of 5.0"
   },
   "has-no-rating": {
@@ -51,9 +51,9 @@ A "mock variant" is an object containing the following attributes:
         "rating": null
       }
     },
-    "__appliesTo__": "Query",
+    "__path__": "Query",
     "__description__": "A new restaurant which has not yet been rated - the rating field returns null"
-  },
+  }
 }
 ```
 
@@ -61,14 +61,14 @@ A "mock variant" is an object containing the following attributes:
 
 When generating a new mock value, add the following to your context window:
 
-- the user's prompt (e.g. "add a @mock response for this field <highlighted position>)
+- the user's prompt (e.g. "add a @mock response for this field <highlighted position>")
 - the corresponding selection and nested selection set in the operation or fragment
 - the GraphQL schema. It is possible that some of the fields in the mock
   response already exist in the schema, and may be looked up - you can use the
   fields' descriptions, sibling fields' descriptions and the field's parent type
   description as additional context.
 
-When regenerating an existing mock value, also include the exising mock value
+When regenerating an existing mock value, also include the existing mock value
 payload and preserve as much as possible (unless the user has specified
 otherwise).
 
@@ -117,6 +117,6 @@ When asked to add or update a mock variant:
 
 ## Schema
 
-Look for the GraphQL schema in <repo_root>/schema.graphql to understand what
-shape of data should be returned. Ask the user if this file cannot be found, and
-remember where it is located for future. 
+Look for the GraphQL schema in the repository to understand what shape of data
+should be returned. (e.g. <repo_root>/schema.graphql). Ask the user if the
+schema file cannot be found, and remember where it is located for future.

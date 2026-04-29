@@ -17,8 +17,8 @@ be present in the server schema, unblocking frontend development.
 
 ### Conditional response based on list position
 
-This specification does not support conditional use of mock values per array 
-position. You may however hoist usage of `@mock` to the parent node that returns
+This specification does not support conditional use of mock values in individual array
+positions. You may, however, hoist usage of `@mock` to the parent node that returns
 a list and return an array containing different values.
 
 **Example**

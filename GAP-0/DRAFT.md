@@ -144,7 +144,7 @@ particular, `@mock` takes precedence over `@skip` and `@include` — the mock da
 is always returned, irrespective of whether the field would otherwise be skipped
 or included based on those directives' conditions.
 
-If `@mock` is applied to an operation definition (e.g. {"query"}), the entirw
+If `@mock` is applied to an operation definition (e.g. {"query"}), the entire
 response must be resolved from a _mock file_. No request should be sent to the
 server.
 
@@ -247,10 +247,6 @@ For an operation named `GetBusinessInfo` defined in `BusinessDetails.graphql`:
 │   └── GetBusinessInfo.json
 └── BusinessDetails.graphql
 ```
-
-TODO: Support multiple files per operation/fragment. Instead of {Name}.json, it
-may be a directory of mock files, nested by the operation/fragment name. e.g.
-`{Name}/arbitrary.json`.
 
 ## Mock File Structure
 
