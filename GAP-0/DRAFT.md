@@ -148,26 +148,6 @@ If `@mock` is applied to an operation definition (e.g. {"query"}), the entire
 response must be resolved from a _mock file_. No request should be sent to the
 server.
 
-When `@mock` is applied to a field selected beneath a list-typed field, the
-same _mock value_ is inserted into each corresponding item in the list. To
-represent distinct values for different list items, apply `@mock` to the
-list-typed field or to an enclosing field, and provide the list as part of the
-_mock value_.
-
-For example, this query inserts the same {"blurHash"} value for each item in
-{"menuItems"}:
-
-```graphql example
-query GetMenuItemPhotos {
-  business(id: "123") {
-    menuItems {
-      name
-      blurHash @mock(value: "L15hfK~ot5NL$_?GRjIV?vW?M{RP")
-    }
-  }
-}
-```
-
 **Example**
 
 The resulting operation that may be sent to a server as a result of applying all
@@ -230,6 +210,26 @@ TransformOperation(document, selectionSet) :
       * If the variable is no longer referenced by any remaining selection,
         remove it.
   1. Return {document}.
+
+**Lists**
+
+When `@mock` is applied to a selection which is a child of a list type, the
+client inserts the same _mock value_ in each corresponding array element in
+the repsonse.
+
+For example, this query inserts the same {"blurHash"} value for each item in
+{"menuItems"}:
+
+```graphql example
+query GetMenuItemPhotos {
+  business(id: "123") {
+    menuItems {
+      name
+      blurHash @mock(value: "L15hfK~ot5NL$_?GRjIV?vW?M{RP")
+    }
+  }
+}
+```
 
 # Mock Files
 
