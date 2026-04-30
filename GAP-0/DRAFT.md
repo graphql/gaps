@@ -162,7 +162,7 @@ query GetMenuItemPhotos {
   business(id: "123") {
     menuItems {
       name
-      blurHash @mock(value: "LEHV6nWB2yk8pyo0adR*.7kCMdnj")
+      blurHash @mock(value: "L15hfK~ot5NL$_?GRjIV?vW?M{RP")
     }
   }
 }
