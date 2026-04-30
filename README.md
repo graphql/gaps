@@ -23,7 +23,7 @@ example, if the PR that adds a GAP is `graphql/gaps#10`, the proposal becomes
 
 ## Repository structure
 
-Each proposal lives in its own `GAP-NNNN` folder and must include:
+Each proposal lives in its own `GAP-N` folder and must include:
 
 - `DRAFT.md` — the working document of the proposal/specification
 - `README.md` — a brief overview and status, including challenges/drawbacks and

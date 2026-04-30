@@ -7,16 +7,27 @@ that address issues outside the core GraphQL specifications.
 
 Each GAP is numbered after the GitHub Pull Request (PR) that introduces it. For
 example, if the PR that adds a GAP is `graphql/gaps#10`, the proposal becomes
-**GAP-10**.
+**GAP-10**. Until the PR is filed and the number known, use `GAP-0` as a
+placeholder.
 
 ## Filing a GAP
 
-1. Optionally create an issue outlining the topic to gauge public interest.
-2. Open a PR that adds a new folder named `GAP-0` containing the required files.
-3. Find a sponsor with [merge rights](#commit-access) (this may be one of the
-   authors), and add them to `metadata.yml`.
-4. Once approved by the authors and sponsor, rename the folder to match the PR
-   number (e.g. `GAP-10`), configure `CODEOWNERS`, and merge the PR.
+Before filing a GAP you're encouraged to create an issue outlining the topic to
+gauge public interest, but doing so is not necessary.
+
+1. Clone the repository and create a folder in the root called `GAP-0`.
+2. Add the required files to this folder as described below (`README.md`,
+   `DRAFT.md` and `metadata.yml`), commit them, and open a pull request (PR).
+3. Update the GAP number to match the PR number (`graphql/gaps#13` has PR number
+   13). Do not zero-pad the PR number.
+   - Rename the folder from `GAP-0` to `GAP-N` where N is the PR number number.
+   - Update `id` in `metadata.yml` to be the PR number.
+   - If not yet configured, update the `discussion` path in `metadata.yml` to
+     point to the PR.
+4. Ping `@graphql/gaps-editors` to find a sponsor, add them to `metadata.yml`.
+
+Once approved by the authors and sponsor, `CODEOWNERS` will be updated and the
+PR will be merged.
 
 > [!IMPORTANT]
 > GAP numbers never change. If a proposal needs significant changes, create a
@@ -24,7 +35,7 @@ example, if the PR that adds a GAP is `graphql/gaps#10`, the proposal becomes
 
 ### Required files
 
-Each `GAP-NNNN` folder must include:
+Each `GAP-N` folder must include:
 
 - `DRAFT.md` — the working document of the proposal/specification, written in
   [`spec-md`](https://spec-md.com/) format
@@ -38,7 +49,7 @@ Each `GAP-NNNN` folder must include:
 Required fields:
 
 ```yml
-id: <number, populated by editor>
+id: <the PR number, or 0 if not yet known>
 title: <title>
 # GAPs are never "strawman". Later we'll probably add additional statuses. If in
 # doubt, choose "proposal"
@@ -79,7 +90,7 @@ To release a version of a GAP, copy the current `DRAFT.md` into a `versions`
 folder named for the year and month of release:
 
 ```bash
-cp GAP-NNNN/DRAFT.md GAP-NNNN/versions/YYYY-MM.md
+cp GAP-N/DRAFT.md GAP-N/versions/YYYY-MM.md
 ```
 
 Rules:
@@ -89,7 +100,7 @@ Rules:
   then only for trivial typos or exceptional circumstances (e.g. security
   issues).
 
-### `GAP-NNNN/versions/YYYY-MM.yml`
+### `GAP-N/versions/YYYY-MM.yml`
 
 This optional file can be created/edited by the TSC or editors to outline the
 status of a published release, including a top-of-document notice or errata.
