@@ -8,6 +8,7 @@
   },
   "scripts": {
     "format": "prettier --write .",
+    "preview": "./scripts/preview.sh",
     "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1",
     "test:format": "prettier --check . || npm run suggest:format",
     "test:spelling": "cspell \"spec/**/*.md\" README.md LICENSE.md",
