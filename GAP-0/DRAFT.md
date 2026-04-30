@@ -294,27 +294,9 @@ A *mock variant* object may contain **only** the following keys:
 :: {"data"} stores the *mock value*. It may be a scalar, object, array, or
 `null`, depending on what in the operation is being mocked.
 
-The client inserts {"data"} directly under the {"data"} key of the operation's
-response — it must not be nested inside an additional {"data"} entry.
-
-For example, when `@mock` is applied to an operation root, the *mock variant*
-should look like this:
-
-```json example
-{
-  "mock-id": {
-    "data": {
-      "business": {
-        "name": "The Great British Bakery",
-        "rating": 5.0
-      }
-    },
-    "__path__": "Query"
-  }
-}
-```
-
-Not this:
+The client merges {"data"} directly into the {"data"} field of the operation's
+response — it must not be nested inside an additional {"data"} entry in the
+_mock variant_:
 
 ```json counter-example
 {
@@ -332,11 +314,12 @@ Not this:
 }
 ```
 
-For a list-typed field, {"data"} contains the list value directly:
+When applying `@mock` to a field that returns a list type, {"data"} contains the
+list value directly:
 
 ```json example
 {
-  "breakfast-menu": {
+  "menu-items": {
     "data": [
       { "name": "Pancakes", "price": "$8.00" },
       { "name": "Waffles", "price": "$9.00" }
