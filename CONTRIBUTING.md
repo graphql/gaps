@@ -40,7 +40,8 @@ gauge public interest, but doing so is not necessary.
      each GAP _author_.
 4. Ping `@graphql/gaps-editors` to find a sponsor, add them to `metadata.yml`.
 
-Once approved by the _authors_ and _sponsor_, the PR should be merged!
+Once approved by the _authors_ and _sponsor_, the PR should be merged by the
+sponsor.
 
 > [!IMPORTANT]
 > GAP numbers never change. If a proposal needs significant changes, create a
