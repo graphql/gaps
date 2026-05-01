@@ -1,0 +1,93 @@
+name: Auto GAP Setup
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  setup:
+    name: Auto-configure new GAP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Auto-configure GAP
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const { execSync } = require('child_process');
+
+            if (!fs.existsSync('GAP-0')) {
+              console.log('No GAP-0 directory found — nothing to do.');
+              return;
+            }
+
+            // Find the merged PR that introduced GAP-0
+            const sha = context.sha;
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: sha,
+            });
+
+            const mergedPr = prs.find(pr => pr.merged_at && pr.base.ref === 'main');
+            if (!mergedPr) {
+              console.log('Could not find a merged PR for this push — nothing to do.');
+              return;
+            }
+
+            const prNumber = mergedPr.number;
+            const prAuthor = mergedPr.user.login;
+            const prUrl = mergedPr.html_url;
+            const gapDir = `GAP-${prNumber}`;
+
+            console.log(`Setting up ${gapDir} from GAP-0 (PR #${prNumber} by @${prAuthor})`);
+
+            // Rename GAP-0 → GAP-N
+            execSync(`git mv GAP-0 ${gapDir}`);
+
+            // Update metadata.yml
+            const metadataPath = path.join(gapDir, 'metadata.yml');
+            if (fs.existsSync(metadataPath)) {
+              let metadata = fs.readFileSync(metadataPath, 'utf8');
+              metadata = metadata.replace(/^id:\s*0$/m, `id: ${prNumber}`);
+              metadata = metadata.replace(/^(discussion:\s*).*$/m, `$1"${prUrl}"`);
+              fs.writeFileSync(metadataPath, metadata);
+              console.log(`Updated ${metadataPath}`);
+            }
+
+            // Update CODEOWNERS
+            const codeownersPath = 'CODEOWNERS';
+            let codeownersContent = '';
+            if (fs.existsSync(codeownersPath)) {
+              codeownersContent = fs.readFileSync(codeownersPath, 'utf8').trimEnd() + '\n';
+            }
+            const codeownersLine = `/${gapDir}/ @${prAuthor}`;
+            if (!codeownersContent.includes(codeownersLine)) {
+              codeownersContent += `${codeownersLine}\n`;
+              fs.writeFileSync(codeownersPath, codeownersContent);
+              console.log(`Updated CODEOWNERS: ${codeownersLine}`);
+            }
+
+            // Commit and push
+            execSync('git config user.name "github-actions[bot]"');
+            execSync('git config user.email "41898282+github-actions[bot]@users.noreply.github.com"');
+            execSync('git add -A');
+
+            const status = execSync('git status --porcelain').toString().trim();
+            if (!status) {
+              console.log('No changes to commit.');
+              return;
+            }
+
+            execSync(`git commit -m "Set up ${gapDir}\n\nRename GAP-0, update metadata.yml (id and discussion), and add CODEOWNERS entry."`);
+            execSync('git push');
+            console.log(`${gapDir} is ready!`);

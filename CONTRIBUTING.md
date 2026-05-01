@@ -30,18 +30,19 @@ gauge public interest, but doing so is not necessary.
 1. Clone the repository and create a folder in the root called `GAP-0`.
 2. Add the required files to this folder as described below (`README.md`,
    `DRAFT.md` and `metadata.yml`), commit them, and open a pull request (PR).
-3. Update the GAP number to match the PR number (`graphql/gaps#10` has PR number
-   10). Do not zero-pad the PR number.
-   - Rename the folder from `GAP-0` to `GAP-N` where N is the PR number number.
-   - Update `id` in `metadata.yml` to be the PR number.
-   - If not yet configured, update the `discussion` path in `metadata.yml` to
-     point to the PR.
-   - Update `CODEOWNERS` to grant ownership of the new `GAP-N` directory to
-     each GAP _author_.
-4. Ping `@graphql/gaps-editors` to find a sponsor, add them to `metadata.yml`.
+3. Ping `@graphql/gaps-editors` to find a sponsor, add them to `metadata.yml`.
 
 Once approved by the _authors_ and _sponsor_, the PR should be merged by the
 sponsor.
+
+After the PR is merged, a GitHub Action will automatically:
+
+- Rename `GAP-0` to `GAP-N` (where N is the PR number).
+- Update `id` and `discussion` in `metadata.yml`.
+- Add the PR author to `CODEOWNERS` for the `GAP-N/` directory.
+
+If there are additional _authors_, manually add them to the `CODEOWNERS` entry
+after this step.
 
 > [!IMPORTANT]
 > GAP numbers never change. If a proposal needs significant changes, create a
