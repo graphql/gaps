@@ -44,6 +44,15 @@ After the PR is merged, a GitHub Action will automatically:
 If there are additional _authors_, manually add them to the `CODEOWNERS` entry
 after this step.
 
+After the PR is merged, a GitHub Action will automatically:
+
+- Rename `GAP-0` to `GAP-N` (where N is the PR number).
+- Update `id` and `discussion` in `metadata.yml`.
+- Add the PR author to `CODEOWNERS` for the `GAP-N/` directory.
+
+If there are additional _authors_, manually add them to the `CODEOWNERS` entry
+after this step.
+
 > [!IMPORTANT]
 > GAP numbers never change. If a proposal needs significant changes, create a
 > new GAP and deprecate the old one.
