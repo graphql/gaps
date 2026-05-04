@@ -6,7 +6,7 @@
  * Usage: ./scripts/validate-structure.js <gap-directory>
  *
  * Can be xarg'd over all GAP directories:
- *   find . -maxdepth 1 -type d -name 'GAP-*' | xargs -I{} node scripts/validate-structure.js {}
+ *   find ./gaps -maxdepth 1 -type d -name 'GAP-*' | xargs -I{} node scripts/validate-structure.js {}
  */
 
 import { existsSync, readFileSync, statSync } from "node:fs";
@@ -95,12 +95,18 @@ function validateMetadata(dirPath, gapName) {
     error(gapName, `metadata.yml validation failed:\n\n${errors}`);
   }
 
-  // Validate authors have valid email format
+  // Validate authors have valid email and githubUsername
   for (const author of metadata.authors) {
-    if (!validator.isEmail(author, { allow_display_name: true })) {
+    if (!validator.isEmail(author.email)) {
       error(
         gapName,
-        `metadata.yml invalid author "${author}" - must be "Name <email>" or a valid email`,
+        `metadata.yml invalid author email "${author.email}" for "${author.name}"`,
+      );
+    }
+    if (!author.githubUsername.startsWith("@")) {
+      error(
+        gapName,
+        `metadata.yml author githubUsername must start with @ (got "${author.githubUsername}" for "${author.name}")`,
       );
     }
   }

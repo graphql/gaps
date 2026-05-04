@@ -6,7 +6,19 @@
   "properties": {
     "title": { "type": "string" },
     "status": { "type": "string", "enum": ["proposal", "draft", "accepted"] },
-    "authors": { "type": "array", "items": { "type": "string" } },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "githubUsername": { "type": "string", "pattern": "^@" }
+        },
+        "required": ["name", "email", "githubUsername"],
+        "additionalProperties": false
+      }
+    },
     "sponsor": { "type": "string" },
     "discussion": { "type": "string" },
     "id": { "type": "integer" },

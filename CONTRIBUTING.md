@@ -28,12 +28,13 @@ placeholder.
 Before filing a GAP you're encouraged to create an issue outlining the topic to
 gauge public interest, but doing so is not necessary.
 
-1. Clone the repository and create a folder in the root called `GAP-0`.
+1. Clone the repository and create a folder at `gaps/GAP-0`.
 2. Add the required files to this folder as described below (`README.md`,
    `DRAFT.md` and `metadata.yml`), commit them, and open a pull request (PR).
 3. Update the GAP number to match the PR number (`graphql/gaps#10` has PR number
    10). Do not zero-pad the PR number.
-   - Rename the folder from `GAP-0` to `GAP-N` where N is the PR number number.
+   - Rename the folder from `gaps/GAP-0` to `gaps/GAP-N` where N is the PR
+     number.
    - Update `id` in `metadata.yml` to be the PR number.
    - If not yet configured, update the `discussion` path in `metadata.yml` to
      point to the PR.
@@ -48,7 +49,7 @@ the PR will be merged.
 
 ### Required files
 
-Each `GAP-N` folder must include:
+Each `gaps/GAP-N` folder must include:
 
 - `DRAFT.md` — the working document of the proposal/specification, written in
   [`spec-md`](https://spec-md.com/) format
@@ -68,11 +69,13 @@ title: <title>
 # doubt, choose "proposal"
 status: proposal | draft | accepted
 authors:
-  - "Your Name <noreply@example.com>"
-sponsor: "@githubUername"
-# An separate GitHub issue, discussion, or other public forum where discussion
+  - name: "Your Name"
+    email: "noreply@example.com"
+    githubUsername: "@yourGithubUsername"
+sponsor: "@githubUsername"
+# A separate GitHub issue, discussion, or other public forum where discussion
 # of this GAP occurs. Otherwise, this can be set to the URL of the PR in which
-# the GAP was submited.
+# the GAP was submitted.
 discussion: "https://github.com/graphql/graphql-wg/issues/..."
 ```
 
@@ -103,7 +106,7 @@ To release a version of a GAP, copy the current `DRAFT.md` into a `versions`
 folder named for the year and month of release:
 
 ```bash
-cp GAP-N/DRAFT.md GAP-N/versions/YYYY-MM.md
+cp gaps/GAP-N/DRAFT.md gaps/GAP-N/versions/YYYY-MM.md
 ```
 
 Rules:
@@ -113,7 +116,7 @@ Rules:
   then only for trivial typos or exceptional circumstances (e.g. security
   issues).
 
-### `GAP-N/versions/YYYY-MM.yml`
+### `gaps/GAP-N/versions/YYYY-MM.yml`
 
 This optional file can be created/edited by the TSC or editors to outline the
 status of a published release, including a top-of-document notice or errata.
