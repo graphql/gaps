@@ -27,7 +27,7 @@ async function main() {
     }),
   );
 
-  const content = lines.length > 0 ? lines.join("\n") + "\n" : "";
+  const content = lines.join("\n") + "\n";
   const codeownersPath = join(rootDir, "CODEOWNERS");
 
   const existing = await readFile(codeownersPath, "utf8");
