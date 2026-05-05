@@ -1,4 +1,4 @@
-id: 0
+id: 7
 title: "Fully Qualified Operation Names"
 status: proposal
 authors:
@@ -6,4 +6,4 @@ authors:
     email: "markl@yelp.com"
     githubUsername: "@magicmark"
 sponsor: "@magicmark"
-discussion: "https://github.com/graphql/graphql-spec/issues/1185"
+discussion: "https://github.com/graphql/gaps/pull/7"
