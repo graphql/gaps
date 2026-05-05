@@ -1,4 +1,4 @@
-# GAP-0: Fully Qualified Operation Name (FQON)
+# GAP-7: Fully Qualified Operation Name (FQON)
 
 Fully Qualified Operation Names (FQONs) are an alternate way to identify and
 refer to GraphQL operations that provide both human readability and uniqueness
@@ -13,12 +13,12 @@ _document id_ changes.
 
 When using
 [trusted documents](https://graphql.org/learn/security/#trusted-documents), we
-may identify queries in two different ways:
+may identify operations in two different ways:
 
-1. The "query name" (e.g. `GetConsumerHeaderData`)
+1. The "operation name" (e.g. `GetConsumerHeaderData`)
 2. The "document id" (e.g. `605fad0ee0a88...`)
 
-_Query names are not guaranteed to be unique_.
+_Operation names are not guaranteed to be unique_.
 
 When using operation names, a developer might see `"GetUserInfo"` in service log,
 copy and paste that string, use `git grep` and find it in the codebase -- only
