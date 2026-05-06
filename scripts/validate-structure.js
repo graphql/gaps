@@ -95,7 +95,7 @@ function validateMetadata(dirPath, gapName) {
     error(gapName, `metadata.yml validation failed:\n\n${errors}`);
   }
 
-  // Validate authors have valid email and githubUsername
+  // Validate authors have valid email
   for (const author of metadata.authors) {
     if (!validator.isEmail(author.email)) {
       error(
@@ -103,20 +103,6 @@ function validateMetadata(dirPath, gapName) {
         `metadata.yml invalid author email "${author.email}" for "${author.name}"`,
       );
     }
-    if (!author.githubUsername.startsWith("@")) {
-      error(
-        gapName,
-        `metadata.yml author githubUsername must start with @ (got "${author.githubUsername}" for "${author.name}")`,
-      );
-    }
-  }
-
-  // Validate sponsor starts with @
-  if (!metadata.sponsor.startsWith("@")) {
-    error(
-      gapName,
-      `metadata.yml sponsor must be a GitHub username starting with @ (got "${metadata.sponsor}")`,
-    );
   }
 
   // Validate discussion is a valid URL
