@@ -334,7 +334,7 @@ async function buildGap(gapDir, outDir) {
 async function main() {
   const { values } = parseArgs({
     options: {
-      "gaps-dir": { type: "string", default: rootDir },
+      "gaps-dir": { type: "string", default: join(rootDir, "gaps") },
       "out-dir": { type: "string", default: join(rootDir, "_site") },
     },
   });
