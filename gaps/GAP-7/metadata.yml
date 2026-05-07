@@ -1,0 +1,13 @@
+id: 7
+title: "Fully Qualified Operation Names"
+summary: >
+  A human-readable, unambiguous identifier for GraphQL operations. May be used
+  as lookup keys in static configuration files as an alternative to persisted
+  document IDs.
+status: proposal
+authors:
+  - name: "Mark Larah"
+    email: "markl@yelp.com"
+    githubUsername: "@magicmark"
+sponsor: "@magicmark"
+discussion: "https://github.com/graphql/gaps/pull/7"
