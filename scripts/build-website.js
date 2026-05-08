@@ -91,10 +91,6 @@ function titleCase(value) {
     .join(" ");
 }
 
-function authorName(author) {
-  const match = String(author).match(/^\s*(.*?)\s*<[^>]+>\s*$/);
-  return match ? match[1] : String(author);
-}
 
 const readTemplate = memoize(async (name) => {
   const templatePath = join(templatesDir, name);
@@ -144,7 +140,7 @@ async function renderGapMeta(gap) {
   const gapMetaTemplate = await readTemplate("gap-meta.html");
   const items = [
     { label: "Status", value: titleCase(gap.status) },
-    { label: "Authors", value: gap.authors.map(authorName).join(", ") },
+    { label: "Authors", value: gap.authors.map((a) => a.name).join(", ") },
     { label: "Sponsor", value: gap.sponsor },
   ];
 
@@ -284,7 +280,7 @@ async function buildGap(gapDir, outDir) {
         frontmatter: {
           [gapName]: gapMetadata.title,
           Version: document.label,
-          Authors: gapMetadata.authors.map(authorName).join(", "),
+          Authors: gapMetadata.authors.map((a) => a.name).join(", "),
           Discussion: gapMetadata.discussion,
         },
       });
