@@ -1,4 +1,4 @@
-# GAP-10: @mock Specification
+# GAP-10: @mock Directive Specification
 
 ## Overview
 
