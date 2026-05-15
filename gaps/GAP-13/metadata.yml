@@ -1,0 +1,11 @@
+id: 13
+title: Operation Expressions
+summary: >
+  A standard syntax that people, tools and documentation can use to concisely
+  and consistently describe, reference and generate semantic positions in a
+  GraphQL executable document.
+status: proposal
+authors:
+  - "Benjie Gillam <code@benjiegillam.com>"
+sponsor: "@benjie"
+discussion: "https://github.com/graphql/gaps/pull/13"
