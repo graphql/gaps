@@ -1,8 +1,6 @@
-// @ts-check
 const fs = require("fs");
 const yaml = require("js-yaml");
 
-/** @param {{ github: any, context: any }} opts */
 module.exports = async ({ github, context }) => {
   const actor = context.payload.comment.user.login;
   const prNumber = context.issue.number;
