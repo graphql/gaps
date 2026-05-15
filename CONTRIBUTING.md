@@ -122,6 +122,12 @@ The _sponsor_ of a GAP is responsible for ensuring changes to the GAP are
 approved by the _authors_ before merging, though this task may also be performed
 by the TSC. The _authors_ are responsible for guiding contribution to the GAP.
 
+### Merging
+
+PRs that only modify files within a single `gaps/GAP-N/` directory can be merged
+by any _author_ listed in that directory's `metadata.yml` by commenting `/merge`
+on the PR.
+
 ### Versioning
 
 To release a version of a GAP, copy the current `DRAFT.md` into a `versions`
@@ -142,18 +148,6 @@ Rules:
 
 This optional file can be created/edited by the TSC or editors to outline the
 status of a published release, including a top-of-document notice or errata.
-
-## Merging
-
-PRs that only modify files within a single `gaps/GAP-N/` directory can be merged
-by any _author_ or _sponsor_ listed in that directory's `metadata.yml` by
-commenting `/merge` on the PR.
-
-A GitHub Action will verify that the commenter is authorized and that the PR is
-scoped to a single GAP directory before merging.
-
-PRs that touch files outside a single GAP directory (e.g. repository-wide
-changes) must be merged by an _editor_ or TSC member.
 
 ## Commit access
 
