@@ -52,11 +52,6 @@ jobs:
           ACTOR: ${{ github.event.comment.user.login }}
         run: |
           METADATA="${GAP_DIR}/metadata.yml"
-          if [ ! -f "$METADATA" ]; then
-            echo "::error::No metadata.yml found in $GAP_DIR"
-            exit 1
-          fi
-
           AUTHORS=$(yq '.authors[].githubUsername | sub("^@", "")' "$METADATA")
           SPONSOR=$(yq '.sponsor | sub("^@", "")' "$METADATA")
           ALL_AUTHORIZED=$(printf '%s\n%s' "$AUTHORS" "$SPONSOR" | sort -u)
