@@ -12,8 +12,7 @@ module.exports = async ({ github, context }) => {
 
   const gapDirs = files
     .map((f) => f.filename)
-    .map((p) => p.split("/")
-    .slice(0, 2).join("/"));
+    .map((p) => p.split("/").slice(0, 2).join("/"));
 
   const gapsChanged = [...new Set(gapDirs)];
 
