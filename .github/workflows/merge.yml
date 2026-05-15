@@ -1,4 +1,4 @@
-name: Author Merge
+name: Merge
 
 on:
   issue_comment:
@@ -9,10 +9,11 @@ permissions:
   pull-requests: write
 
 jobs:
-  author-merge:
+  merge:
     runs-on: ubuntu-latest
     if: >
-      github.event.issue.pull_request && github.event.comment.body == '/merge'
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/merge')
     steps:
       - uses: actions/checkout@v6
 
@@ -43,7 +44,6 @@ jobs:
             exit 1
           fi
 
-          # Ensure all files are within this directory
           GAP_DIR="$DIRS"
           NON_GAP_FILES=$(echo "${{ steps.files.outputs.files }}" | grep -v "^${GAP_DIR}/" || true)
           if [ -n "$NON_GAP_FILES" ]; then
@@ -63,10 +63,8 @@ jobs:
 
           ACTOR="${{ steps.pr.outputs.actor }}"
 
-          # Extract GitHub usernames from authors list and sponsor field
           AUTHORIZED=$(grep -oP '(?<=githubUsername:\s"@)\w[-\w]*' "$METADATA" || true)
           SPONSOR=$(grep -oP '(?<=sponsor:\s"@)\w[-\w]*' "$METADATA" || true)
-
           ALL_AUTHORIZED=$(printf '%s\n%s' "$AUTHORIZED" "$SPONSOR" | sort -u)
 
           if echo "$ALL_AUTHORIZED" | grep -qx "$ACTOR"; then
