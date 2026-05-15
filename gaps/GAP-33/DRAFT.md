@@ -19,16 +19,16 @@ To put it another way, if a location in the Schema can be defined by a
 
 SetTypeSystemDocument : SetTypeSystemDefinitionOrExtension+
 
-TypeSystemDefinition :
-
-- SetSchemaDefinition
-- SetTypeDefinition
-- SetDirectiveDefinition
-
 SetTypeSystemDefinitionOrExtension :
 
 - SetTypeSystemDefinition
 - SetTypeSystemExtension
+
+SetTypeSystemDefinition :
+
+- SetSchemaDefinition
+- SetTypeDefinition
+- SetDirectiveDefinition
 
 SetTypeSystemExtension :
 
@@ -49,6 +49,8 @@ SetSchemaExtension :
 
 - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
 - extend schema Directives[Const] [lookahead != `{`]
+
+SetSchemaDefinition and SetSchemaExtension are grammatically identical to the [Schema](https://spec.graphql.org/draft/#sec-Schema) in the GraphQL Specification.
 
 ## Types
 
@@ -76,6 +78,8 @@ SetTypeExtension :
 
 SetScalarTypeDefinition : Description? scalar Name Directives[Const]?
 
+SetScalarTypeDefinition and SetScalarTypeExtension are gramatically identical to the [Scalars](https://spec.graphql.org/draft/#sec-Scalars) Specification.
+
 ### Scalar Extensions
 
 SetScalarTypeExtension :
@@ -91,18 +95,20 @@ SetObjectTypeDefinition :
 - Description? type Name ImplementsInterfaces? Directives[Const]? [lookahead !=
   `{`]
 
-SetObjectTypeExtension :
-
-- extend type Name ImplementsInterfaces? Directives[Const]? SetFieldsDefinitionOrExtension
-- extend type Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
-- extend type Name ImplementsInterfaces [lookahead != `{`]
-
 ImplementsInterfaces :
 
 - ImplementsInterfaces & NamedType
 - implements `&`? NamedType
 
 SetFieldsDefinitionOrExtension : { SetFieldDefinitionOrExtension+ }
+
+### Object Extensions
+
+SetObjectTypeExtension :
+
+- extend type Name ImplementsInterfaces? Directives[Const]? SetFieldsDefinitionOrExtension
+- extend type Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
+- extend type Name ImplementsInterfaces [lookahead != `{`]
 
 ## Fields
 
@@ -111,17 +117,27 @@ SetFieldDefinitionOrExtension:
 - SetFieldDefinition
 - SetFieldExtension
 
-SetFieldDefinition : Description? Name SetArgumentsDefinitionOrExtension? : Type
-Directives[Const]?
+SetFieldDefinition :
+- Description? Name SetArgumentsDefinitionOrExtension? : Type Directives[Const]?
+- Description? Name SetArgumentsDefinitionOrExtension [lookahead != `:`] Directives[Const]?
+- Description? Name [lookahead != `:`] Directives[Const]?
 
-SetFieldExtension : extend Name SetArgumentsDefinitionOrExtension? Directives[Const]?
+### Field Extensions
+
+SetFieldExtension :
+- extend Name SetArgumentsDefinitionOrExtension? : Type Directives[Const]?
+- extend Name SetArgumentsDefinitionOrExtension [lookahead != `:`] Directives[Const]?
+- extend Name [lookahead != `:`] Directives[Const]?
+
+It is possible for the type definition of a field to only be present in that field's extension. Likewise, we need to be able to extend a field (like deprecating it)
+with a guarantee that the field's type will not change through the extension.
 
 Field extensions are different from fields defined by a type extension. The below is valid syntax:
 
 ```graphql field-extension
 extend type Person {
-  name: String
   extend age @deprecated
+  name
 }
 
 type Business {
@@ -134,7 +150,7 @@ be `union`'d with a document like:
 ```graphql field-extension-merge
 type Person {
   age: Int
-  extend name @deprecated
+  extend name: String @deprecated
 }
 
 extend type Business {
@@ -156,6 +172,11 @@ type Business {
 ```
 which is now a valid GraphQL Type System Document.
 
+The syntax of allowing field definitions without a type definition
+enables tooling, such as diff tools, to have a valid *syntax* for
+how a schema is evolving, even if the *semantic meaning* of the syntax
+would not produce a valid GraphQL Schema.
+
 ### Field Arguments
 
 SetArgumentsDefinition : ( SetInputValueDefinitionOrExtension+ )
@@ -164,23 +185,33 @@ SetInputValueDefinitionOrExtension :
 - SetInputValueDefinition
 - SetInputValueExtension
 
-SetInputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
+### Input Values
 
-SetInputValueExtension : extend Name Directives[Const]?
+SetInputValueDefinition :
 
-Similar to SetFieldExtension, SetInputValueExtension cannot define the input value's type, and we don't know a good representation that would allow us to add a DefaultValue to the input.
+- Description? Name : Type DefaultValue? Directives[Const]?
+- Description? Name [lookahead != `:`] DefaultValue? Directives[Const]?
+
+### Input Value Extensions
+
+SetInputValueExtension :
+
+- extend Name : Type Directives[Const]?
+- extend Name [lookahead != `:`] Directives[Const]?
+
+Similar to Field Definitions and Extensions, Input Value Definitions and Extensions cannot may elide the input value's type.
 
 Example:
 ```graphql argument-extension
 type Person {
-  name: String
+  name(short): String
   extend age(minimum: Int)
 }
 ```
 union
 ```graphql argument-extension-union
 type Person {
-  extend name(short: Boolean)
+  extend name(extend short: Boolean)
   age(extend minimum @deprecated): Int
 }
 ```
@@ -217,12 +248,14 @@ UnionMemberTypes :
 - UnionMemberTypes | NamedType
 - = `|`? NamedType
 
+### Union Extensions
+
 SetUnionTypeExtension :
 
 - extend union Name Directives[Const]? UnionMemberTypes
 - extend union Name Directives[Const]
 
-NOTE: SetUnionTypeDefinition to UnionTypeDefinition, and SetUnionTypeExtension is equivalent to UnionTypeExtension. This is because Union does not have any possible inner Schema Coordinates (union members are *not* possible coordinates).
+SetUntionTypeExtension is gramatically identical to the [Unions](https://spec.graphql.org/draft/#sec-Unions) in the GraphQL Specification.
 
 ## Enums
 
@@ -231,10 +264,7 @@ SetEnumTypeDefinition :
 - Description? enum Name Directives[Const]? SetEnumValuesDefinitionOrExtension
 - Description? enum Name Directives[Const]? [lookahead != `{`]
 
-SetEnumTypeExtension :
-
-- extend enum Name Directives[Const]? SetEnumValuesDefinitionOrExtension
-- extend enum Name Directives[Const] [lookahead != `{`]
+### Enum Values
 
 SetEnumValuesDefinitionOrExtension : { SetEnumValueDefinitionOrExtension+ }
 
@@ -245,6 +275,13 @@ SetEnumValueDefinitionOrExtension :
 SetEnumValueDefinition : Description? EnumValue Directives[Const]?
 SetEnumValueExtension : extend EnumValue Directives[Const]?
 
+### Enum Extensions
+
+SetEnumTypeExtension :
+
+- extend enum Name Directives[Const]? SetEnumValuesDefinitionOrExtension
+- extend enum Name Directives[Const] [lookahead != `{`]
+
 ## Input Objects
 
 InputObjectTypeDefinition :
@@ -252,21 +289,21 @@ InputObjectTypeDefinition :
 - Description? input Name Directives[Const]? SetInputFieldsDefinitionOrExtension
 - Description? input Name Directives[Const]? [lookahead != `{`]
 
+SetInputFieldsDefinitionOrExtension : { SetInputValueDefinitionOrExtension+ }
+
+## Input Object Extensions
+
 InputObjectTypeExtension :
 
 - extend input Name Directives[Const]? SetInputFieldsDefinitionOrExtension
 - extend input Name Directives[Const] [lookahead != `{`]
 
-SetInputFieldsDefinition : { SetInputValueDefinitionOrExtension+ }
-
 ## Directives
 
 NOTE: we are assuming that directives on directive definitions, (https://github.com/graphql/graphql-spec/pull/1206) is in the spec at this point.
 
-SetDirectiveDefinition : Description? directive @ Name SetArgumentsDefinition? Directives[Const]?
+SetDirectiveDefinition : Description? directive @ Name SetArgumentsDefinitionOrExtension? Directives[Const]?
 `repeatable`? on DirectiveLocations
-
-SetDirectiveExtension : extend directive @ Name SetArgumentsDefinition? Directives[Const]
 
 DirectiveLocations :
 
@@ -303,3 +340,199 @@ TypeSystemDirectiveLocation : one of
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
 - `DIRECTIVE_DEFINITION`
+
+### Directive Extensions
+
+SetDirectiveExtension : extend directive @ Name SetArgumentsDefinitionOrExtension? Directives[Const]
+
+
+# Appendix: Grammar Summary
+
+SetTypeSystemExtensionDocument : SetTypeSystemDefinitionOrExtension+
+
+SetTypeSystemDefinitionOrExtension :
+
+- SetTypeSystemDefinition
+- SetTypeSystemExtension
+
+SetTypeSystemExtension :
+
+- SetSchemaExtension
+- SetTypeExtension
+
+SetSchemaDefinition : Description? schema Directives[Const]? {
+RootOperationTypeDefinition+ }
+
+SetSchemaExtension :
+
+- extend schema Directives[Const]? { RootOperationTypeDefinition+ }
+- extend schema Directives[Const] [lookahead != `{`]
+
+RootOperationTypeDefinition : OperationType : NamedType
+
+SetTypeDefinition :
+
+- SetScalarTypeDefinition
+- SetObjectTypeDefinition
+- SetInterfaceTypeDefinition
+- SetUnionTypeDefinition
+- SetEnumTypeDefinition
+- SetInputObjectTypeDefinition
+
+SetTypeExtension :
+
+- SetScalarTypeExtension
+- SetObjectTypeExtension
+- SetInterfaceTypeExtension
+- SetUnionTypeExtension
+- SetEnumTypeExtension
+- SetInputObjectTypeExtension
+
+SetScalarTypeDefinition : Description? scalar Name Directives[Const]?
+
+SetScalarTypeExtension :
+
+- extend scalar Name Directives[Const]
+
+SetObjectTypeDefinition :
+
+- Description? type Name ImplementsInterfaces? Directives[Const]? SetFieldsDefinitionOrExtension
+- Description? type Name ImplementsInterfaces? Directives[Const]? [lookahead != `{`]
+
+SetObjectTypeExtension :
+
+- extend type Name ImplementsInterfaces? Directives[Const]? SetFieldsDefinitionOrExtension
+- extend type Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
+- extend type Name ImplementsInterfaces [lookahead != `{`]
+
+ImplementsInterfaces :
+
+- ImplementsInterfaces & NamedType
+- implements `&`? NamedType
+
+SetFieldsDefinitionOrExtension : { SetFieldDefinitionOrExtension+ }
+
+SetFieldDefinitionOrExtension :
+- SetFieldDefinition
+- SetFieldExtension
+
+SetFieldDefinition :
+- Description? Name SetArgumentsDefinitionOrExtension? : Type Directives[Const]?
+- Description? Name SetArgumentsDefinitionOrExtension [lookahead != `:`] Directives[Const]?
+- Description? Name [lookahead != `:`] Directives[Const]?
+
+SetFieldExtension :
+- extend Name SetArgumentsDefinitionOrExtension? : Type Directives[Const]?
+- extend Name SetArgumentsDefinitionOrExtension [lookahead != `:`] Directives[Const]?
+- extend Name [lookahead != `:`] Directives[Const]?
+
+SetArgumentsDefinitionOrExtension : ( SetInputValueDefinitionOrExtension+ )
+
+SetInputValueDefinitionOrExtension :
+- SetInputValueDefinition
+- SetInputValueExtension
+
+SetInputValueDefinition :
+- Description? Name : Type DefaultValue? Directives[Const]?
+- Description? Name [lookahead != `:`] Directives[Const]?
+
+SetInputValueExtension :
+- extend Name : Type DefaultValue? Directives[Const]?
+- extend Name [lookahead != `:`] Directives[Const]?
+
+SetInterfaceTypeDefinition :
+
+- Description? interface Name ImplementsInterfaces? Directives[Const]? SetFieldsDefinitionOrExtension
+- Description? interface Name ImplementsInterfaces? Directives[Const]? [lookahead != `{`]
+
+SetInterfaceTypeExtension :
+
+- extend interface Name ImplementsInterfaces? Directives[Const]? SetFieldsDefinitionOrExtension
+- extend interface Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
+- extend interface Name ImplementsInterfaces [lookahead != `{`]
+
+SetUnionTypeDefinition : Description? union Name Directives[Const]?
+UnionMemberTypes?
+
+UnionMemberTypes :
+
+- UnionMemberTypes | NamedType
+- = `|`? NamedType
+
+SetUnionTypeExtension :
+
+- extend union Name Directives[Const]? UnionMemberTypes
+- extend union Name Directives[Const]
+
+SetEnumTypeDefinition :
+
+- Description? enum Name Directives[Const]? SetEnumValuesDefinitionsOrExtension
+- Description? enum Name Directives[Const]? [lookahead != `{`]
+
+SetEnumValuesDefinitionOrExtension : { SetEnumValueDefinitionOrExtension+ }
+
+SetEnumValueDefinitionOrExtension:
+- SetEnumValueDefinition
+- SetEnumValueExtension
+
+SetEnumValueDefinition : Description? EnumValue Directives[Const]?
+
+SetEnumValueExtension : extend EnumValue Directives[Const]?
+
+SetEnumTypeExtension :
+
+- extend enum Name Directives[Const]? SetEnumValuesDefinitionsOrExtension
+- extend enum Name Directives[Const] [lookahead != `{`]
+
+SetInputObjectTypeDefinition :
+
+- Description? input Name Directives[Const]? SetInputFieldsDefinition
+- Description? input Name Directives[Const]? [lookahead != `{`]
+
+SetInputFieldsDefinition : { SetInputFieldsDefinitionOrExtension+ }
+
+SetInputObjectTypeExtension :
+
+- extend input Name Directives[Const]? SetInputFieldsDefinition
+- extend input Name Directives[Const] [lookahead != `{`]
+
+SetDirectiveDefinition : Description? directive @ Name SetArgumentsDefinitionOrExtension?
+`repeatable`? on DirectiveLocations
+
+DirectiveLocations :
+
+- DirectiveLocations | DirectiveLocation
+- `|`? DirectiveLocation
+
+DirectiveLocation :
+
+- ExecutableDirectiveLocation
+- TypeSystemDirectiveLocation
+
+ExecutableDirectiveLocation : one of
+
+- `QUERY`
+- `MUTATION`
+- `SUBSCRIPTION`
+- `FIELD`
+- `FRAGMENT_DEFINITION`
+- `FRAGMENT_SPREAD`
+- `INLINE_FRAGMENT`
+- `VARIABLE_DEFINITION`
+
+TypeSystemDirectiveLocation : one of
+
+- `SCHEMA`
+- `SCALAR`
+- `OBJECT`
+- `FIELD_DEFINITION`
+- `ARGUMENT_DEFINITION`
+- `INTERFACE`
+- `UNION`
+- `ENUM`
+- `ENUM_VALUE`
+- `INPUT_OBJECT`
+- `INPUT_FIELD_DEFINITION`
+- `DIRECTIVE_DEFINITION`
+
+SetDirectiveExtension : extend directive @ Name SetArgumentsDefinitionOrExtension? Directives[Const]
