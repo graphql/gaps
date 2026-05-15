@@ -1,0 +1,12 @@
+id: 33
+title: GraphQL Schema Definition Language - Set Extensions
+summary: >
+  An auxiliary syntax extending the Schema Definition Language syntax,
+  unlocking set-like operations (union, exclude, intersect) on SDL documents.
+status: proposal
+authors:
+  - name: "Matt Mahoney"
+    email: "mahoney.mattj@gmail.com"
+    githubUsername: "@mjmahone"
+sponsor: "@mjmahone"
+discussion: "https://github.com/graphql/gaps/pull/33"
