@@ -70,9 +70,7 @@ jobs:
           SPONSOR=$(yq '.sponsor | sub("^@", "")' "$METADATA")
           ALL_AUTHORIZED=$(printf '%s\n%s' "$AUTHORS" "$SPONSOR" | sort -u)
 
-          if echo "$ALL_AUTHORIZED" | grep -qFx "$ACTOR"; then
-            echo "✓ $ACTOR is authorized to merge changes to $GAP_DIR"
-          else
+          if ! echo "$ALL_AUTHORIZED" | grep -qFx "$ACTOR"; then
             echo "::error::$ACTOR is not listed as an author or sponsor in $METADATA"
             exit 1
           fi
