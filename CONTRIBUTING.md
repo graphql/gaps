@@ -146,13 +146,10 @@ status of a published release, including a top-of-document notice or errata.
 ## Merging
 
 PRs that only modify files within a single `gaps/GAP-N/` directory can be merged
-by any _author_ or _sponsor_ listed in that directory's `metadata.yml`. To
-trigger a merge, either:
+by any _author_ or _sponsor_ listed in that directory's `metadata.yml` by
+commenting `/merge` on the PR.
 
-- Submit a PR review with "Approve", or
-- Comment `/merge` on the PR.
-
-A GitHub Action will verify that the actor is authorized and that the PR is
+A GitHub Action will verify that the commenter is authorized and that the PR is
 scoped to a single GAP directory before merging.
 
 PRs that touch files outside a single GAP directory (e.g. repository-wide

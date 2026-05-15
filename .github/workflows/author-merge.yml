@@ -1,8 +1,6 @@
 name: Author Merge
 
 on:
-  pull_request_review:
-    types: [submitted]
   issue_comment:
     types: [created]
 
@@ -14,25 +12,15 @@ jobs:
   author-merge:
     runs-on: ubuntu-latest
     if: >
-      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved') ||
-      (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '/merge')
+      github.event.issue.pull_request && github.event.comment.body == '/merge'
     steps:
       - uses: actions/checkout@v4
 
       - name: Get PR details
         id: pr
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request_review" ]; then
-            PR_NUMBER="${{ github.event.pull_request.number }}"
-            ACTOR="${{ github.event.review.user.login }}"
-          else
-            PR_NUMBER="${{ github.event.issue.number }}"
-            ACTOR="${{ github.event.comment.user.login }}"
-          fi
-          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-          echo "actor=$ACTOR" >> "$GITHUB_OUTPUT"
+          echo "pr_number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
+          echo "actor=${{ github.event.comment.user.login }}" >> "$GITHUB_OUTPUT"
 
       - name: Fetch PR changed files
         id: files
