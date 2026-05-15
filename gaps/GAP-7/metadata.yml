@@ -6,6 +6,7 @@ summary: >
   document IDs.
 status: draft
 authors:
+  - "testing to make sure the status check fails, ignore me!"
   - name: "Mark Larah"
     email: "markl@yelp.com"
     githubUsername: "@magicmark"
