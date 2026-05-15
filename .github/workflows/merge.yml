@@ -8,6 +8,10 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: merge-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
 jobs:
   merge:
     runs-on: ubuntu-latest
@@ -17,35 +21,37 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Get PR details
-        id: pr
-        run: |
-          echo "pr_number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
-          echo "actor=${{ github.event.comment.user.login }}" >> "$GITHUB_OUTPUT"
-
       - name: Fetch PR changed files
         id: files
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
         run: |
-          FILES=$(gh pr diff "${{ steps.pr.outputs.pr_number }}" --name-only)
+          FILES=$(gh pr diff "$PR_NUMBER" --name-only)
           echo "files<<EOF" >> "$GITHUB_OUTPUT"
           echo "$FILES" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Determine affected GAP directory
         id: gap
+        env:
+          CHANGED_FILES: ${{ steps.files.outputs.files }}
         run: |
-          DIRS=$(echo "${{ steps.files.outputs.files }}" | grep -oP '^gaps/GAP-\d+' | sort -u)
-          DIR_COUNT=$(echo "$DIRS" | wc -l)
+          DIRS=$(echo "$CHANGED_FILES" | grep -oE '^gaps/GAP-[0-9]+' | sort -u)
 
+          if [ -z "$DIRS" ]; then
+            echo "::error::PR does not touch any GAP directory."
+            exit 1
+          fi
+
+          DIR_COUNT=$(echo "$DIRS" | wc -l)
           if [ "$DIR_COUNT" -ne 1 ]; then
-            echo "::error::PR touches files in multiple GAP directories (or none). Author merge only works for single-GAP PRs."
+            echo "::error::PR touches multiple GAP directories. Author merge only works for single-GAP PRs."
             exit 1
           fi
 
           GAP_DIR="$DIRS"
-          NON_GAP_FILES=$(echo "${{ steps.files.outputs.files }}" | grep -v "^${GAP_DIR}/" || true)
+          NON_GAP_FILES=$(echo "$CHANGED_FILES" | grep -v "^${GAP_DIR}/" || true)
           if [ -n "$NON_GAP_FILES" ]; then
             echo "::error::PR modifies files outside of $GAP_DIR — author merge not permitted."
             exit 1
@@ -54,21 +60,22 @@ jobs:
           echo "gap_dir=$GAP_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Check actor is an author or sponsor
+        env:
+          GAP_DIR: ${{ steps.gap.outputs.gap_dir }}
+          ACTOR: ${{ github.event.comment.user.login }}
         run: |
-          METADATA="${{ steps.gap.outputs.gap_dir }}/metadata.yml"
+          METADATA="${GAP_DIR}/metadata.yml"
           if [ ! -f "$METADATA" ]; then
-            echo "::error::No metadata.yml found in ${{ steps.gap.outputs.gap_dir }}"
+            echo "::error::No metadata.yml found in $GAP_DIR"
             exit 1
           fi
-
-          ACTOR="${{ steps.pr.outputs.actor }}"
 
           AUTHORS=$(yq '.authors[].githubUsername | sub("^@", "")' "$METADATA")
           SPONSOR=$(yq '.sponsor | sub("^@", "")' "$METADATA")
           ALL_AUTHORIZED=$(printf '%s\n%s' "$AUTHORS" "$SPONSOR" | sort -u)
 
-          if echo "$ALL_AUTHORIZED" | grep -qx "$ACTOR"; then
-            echo "✓ $ACTOR is authorized to merge changes to ${{ steps.gap.outputs.gap_dir }}"
+          if echo "$ALL_AUTHORIZED" | grep -qFx "$ACTOR"; then
+            echo "✓ $ACTOR is authorized to merge changes to $GAP_DIR"
           else
             echo "::error::$ACTOR is not listed as an author or sponsor in $METADATA"
             exit 1
@@ -77,5 +84,6 @@ jobs:
       - name: Merge PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
         run: |
-          gh pr merge "${{ steps.pr.outputs.pr_number }}" --squash --auto
+          gh pr merge "$PR_NUMBER" --squash --auto
