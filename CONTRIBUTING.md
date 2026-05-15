@@ -11,9 +11,8 @@ that address issues outside the core GraphQL specifications.
 - **Sponsor** — an _editor_ assigned to a GAP who is responsible for approving
   the initial contents. A _sponsor_ may also be an _author_.
 - **Author** — a person (or people) who have made significant contributions to a
-  GAP, listed in the `authors` field of `metadata.yml`. _Authors_ are given
-  commit access via `CODEOWNERS` to merge their own and others' submissions to
-  the GAP.
+  GAP, listed in the `authors` field of `metadata.yml`. _Authors_ can merge PRs
+  that only touch their GAP directory (see [Merging](#merging) below).
 
 ## GAP Numbering
 
@@ -61,9 +60,6 @@ gauge public interest, but doing so is not necessary.
 
 Once approved by the _authors_ and _sponsor_, the PR should be merged by the
 _sponsor_.
-
-`CODEOWNERS` will automatically be updated allowing _authors_ to merge future
-contributions to their GAP.
 
 > [!IMPORTANT]
 > GAP numbers never change. If a proposal needs significant changes, create a
@@ -146,6 +142,21 @@ Rules:
 
 This optional file can be created/edited by the TSC or editors to outline the
 status of a published release, including a top-of-document notice or errata.
+
+## Merging
+
+PRs that only modify files within a single `gaps/GAP-N/` directory can be merged
+by any _author_ or _sponsor_ listed in that directory's `metadata.yml`. To
+trigger a merge, either:
+
+- Submit a PR review with "Approve", or
+- Comment `/merge` on the PR.
+
+A GitHub Action will verify that the actor is authorized and that the PR is
+scoped to a single GAP directory before merging.
+
+PRs that touch files outside a single GAP directory (e.g. repository-wide
+changes) must be merged by an _editor_ or TSC member.
 
 ## Commit access
 

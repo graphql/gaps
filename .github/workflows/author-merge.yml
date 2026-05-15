@@ -1,0 +1,95 @@
+name: Author Merge
+
+on:
+  pull_request_review:
+    types: [submitted]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  author-merge:
+    runs-on: ubuntu-latest
+    if: >
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved') ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '/merge')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get PR details
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request_review" ]; then
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            ACTOR="${{ github.event.review.user.login }}"
+          else
+            PR_NUMBER="${{ github.event.issue.number }}"
+            ACTOR="${{ github.event.comment.user.login }}"
+          fi
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "actor=$ACTOR" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch PR changed files
+        id: files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FILES=$(gh pr diff "${{ steps.pr.outputs.pr_number }}" --name-only)
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$FILES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Determine affected GAP directory
+        id: gap
+        run: |
+          DIRS=$(echo "${{ steps.files.outputs.files }}" | grep -oP '^gaps/GAP-\d+' | sort -u)
+          DIR_COUNT=$(echo "$DIRS" | wc -l)
+
+          if [ "$DIR_COUNT" -ne 1 ]; then
+            echo "::error::PR touches files in multiple GAP directories (or none). Author merge only works for single-GAP PRs."
+            exit 1
+          fi
+
+          # Ensure all files are within this directory
+          GAP_DIR="$DIRS"
+          NON_GAP_FILES=$(echo "${{ steps.files.outputs.files }}" | grep -v "^${GAP_DIR}/" || true)
+          if [ -n "$NON_GAP_FILES" ]; then
+            echo "::error::PR modifies files outside of $GAP_DIR — author merge not permitted."
+            exit 1
+          fi
+
+          echo "gap_dir=$GAP_DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Check actor is an author or sponsor
+        run: |
+          METADATA="${{ steps.gap.outputs.gap_dir }}/metadata.yml"
+          if [ ! -f "$METADATA" ]; then
+            echo "::error::No metadata.yml found in ${{ steps.gap.outputs.gap_dir }}"
+            exit 1
+          fi
+
+          ACTOR="${{ steps.pr.outputs.actor }}"
+
+          # Extract GitHub usernames from authors list and sponsor field
+          AUTHORIZED=$(grep -oP '(?<=githubUsername:\s"@)\w[-\w]*' "$METADATA" || true)
+          SPONSOR=$(grep -oP '(?<=sponsor:\s"@)\w[-\w]*' "$METADATA" || true)
+
+          ALL_AUTHORIZED=$(printf '%s\n%s' "$AUTHORIZED" "$SPONSOR" | sort -u)
+
+          if echo "$ALL_AUTHORIZED" | grep -qx "$ACTOR"; then
+            echo "✓ $ACTOR is authorized to merge changes to ${{ steps.gap.outputs.gap_dir }}"
+          else
+            echo "::error::$ACTOR is not listed as an author or sponsor in $METADATA"
+            exit 1
+          fi
+
+      - name: Merge PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge "${{ steps.pr.outputs.pr_number }}" --squash --auto
