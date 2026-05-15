@@ -8,10 +8,6 @@ permissions:
   contents: write
   pull-requests: write
 
-concurrency:
-  group: merge-${{ github.event.issue.number }}
-  cancel-in-progress: true
-
 jobs:
   merge:
     runs-on: ubuntu-latest
