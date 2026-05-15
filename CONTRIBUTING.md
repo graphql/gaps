@@ -9,7 +9,7 @@ that address issues outside the core GraphQL specifications.
   ([@graphql/gaps-editors](https://github.com/orgs/graphql/teams/gaps-editors)),
   approved by the TSC to administer the GAP program.
 - **Sponsor** — an _editor_ assigned to a GAP who is responsible for approving
-  the initial contents. A _sponsor_ may also be an _author_.
+  and merging the initial contents. A _sponsor_ may also be an _author_.
 - **Author** — a person (or people) who have made significant contributions to a
   GAP, listed in the `authors` field of `metadata.yml`. _Authors_ can merge PRs
   that only touch their GAP directory (see [Merging](#merging) below).
