@@ -14,7 +14,7 @@ jobs:
     if: >
       github.event.issue.pull_request && github.event.comment.body == '/merge'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Get PR details
         id: pr
