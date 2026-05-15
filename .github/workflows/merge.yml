@@ -63,9 +63,9 @@ jobs:
 
           ACTOR="${{ steps.pr.outputs.actor }}"
 
-          AUTHORIZED=$(grep -oP '(?<=githubUsername:\s"@)\w[-\w]*' "$METADATA" || true)
-          SPONSOR=$(grep -oP '(?<=sponsor:\s"@)\w[-\w]*' "$METADATA" || true)
-          ALL_AUTHORIZED=$(printf '%s\n%s' "$AUTHORIZED" "$SPONSOR" | sort -u)
+          AUTHORS=$(yq '.authors[].githubUsername | sub("^@", "")' "$METADATA")
+          SPONSOR=$(yq '.sponsor | sub("^@", "")' "$METADATA")
+          ALL_AUTHORIZED=$(printf '%s\n%s' "$AUTHORS" "$SPONSOR" | sort -u)
 
           if echo "$ALL_AUTHORIZED" | grep -qx "$ACTOR"; then
             echo "✓ $ACTOR is authorized to merge changes to ${{ steps.gap.outputs.gap_dir }}"
