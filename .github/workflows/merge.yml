@@ -17,55 +17,49 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Resolve authors from metadata
-        id: metadata
+      - name: Determine affected GAP directory
+        id: gap
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.issue.number }}
         run: |
           CHANGED_FILES=$(gh pr diff "$PR_NUMBER" --name-only)
-          GAP_DIR=$(echo "$CHANGED_FILES" | grep -oE '^gaps/GAP-[0-9]+' | sort -u | head -1)
+          DIRS=$(echo "$CHANGED_FILES" | grep -oE '^gaps/GAP-[0-9]+' | sort -u)
+
+          if [ -z "$DIRS" ]; then
+            echo "::error::PR does not touch any GAP directory."
+            exit 1
+          fi
+
+          DIR_COUNT=$(echo "$DIRS" | wc -l)
+          if [ "$DIR_COUNT" -ne 1 ]; then
+            echo "::error::PR touches multiple GAP directories. Author merge only works for single-GAP PRs."
+            exit 1
+          fi
+
+          GAP_DIR="$DIRS"
+          NON_GAP_FILES=$(echo "$CHANGED_FILES" | grep -v "^${GAP_DIR}/" || true)
+          if [ -n "$NON_GAP_FILES" ]; then
+            echo "::error::PR modifies files outside of $GAP_DIR — author merge not permitted."
+            exit 1
+          fi
+
           echo "gap_dir=$GAP_DIR" >> "$GITHUB_OUTPUT"
-          echo "authors=$(yq -o=json '.authors[].githubUsername | sub("^@", "")' "$GAP_DIR/metadata.yml" | jq -sc '.')" >> "$GITHUB_OUTPUT"
-          echo "sponsor=$(yq '.sponsor | sub("^@", "")' "$GAP_DIR/metadata.yml")" >> "$GITHUB_OUTPUT"
 
-      - name: Verify actor is authorized
-        uses: actions/github-script@v7
+      - name: Check actor is an author or sponsor
         env:
+          GAP_DIR: ${{ steps.gap.outputs.gap_dir }}
           ACTOR: ${{ github.event.comment.user.login }}
-          PR_NUMBER: ${{ github.event.issue.number }}
-          GAP_DIR: ${{ steps.metadata.outputs.gap_dir }}
-          AUTHORS: ${{ steps.metadata.outputs.authors }}
-          SPONSOR: ${{ steps.metadata.outputs.sponsor }}
-        with:
-          script: |
-            const { ACTOR, PR_NUMBER, GAP_DIR, AUTHORS, SPONSOR } = process.env;
-            const authorized = new Set([...JSON.parse(AUTHORS), SPONSOR]);
+        run: |
+          METADATA="${GAP_DIR}/metadata.yml"
+          AUTHORS=$(yq '.authors[].githubUsername | sub("^@", "")' "$METADATA")
+          SPONSOR=$(yq '.sponsor | sub("^@", "")' "$METADATA")
+          ALL_AUTHORIZED=$(printf '%s\n%s' "$AUTHORS" "$SPONSOR" | sort -u)
 
-            if (!authorized.has(ACTOR)) {
-              core.setFailed(`${ACTOR} is not listed as an author or sponsor in ${GAP_DIR}/metadata.yml`);
-              return;
-            }
-
-            const { data: files } = await github.rest.pulls.listFiles({
-              ...context.repo,
-              pull_number: Number(PR_NUMBER),
-            });
-            const paths = files.map(f => f.filename);
-            const gaps = [...new Set(paths.map(p => p.match(/^gaps\/GAP-\d+/)?.[0]).filter(Boolean))];
-
-            if (gaps.length === 0) {
-              core.setFailed('PR does not touch any GAP directory.');
-              return;
-            }
-            if (gaps.length !== 1) {
-              core.setFailed('PR touches multiple GAP directories.');
-              return;
-            }
-            if (paths.some(p => !p.startsWith(`${gaps[0]}/`))) {
-              core.setFailed(`PR modifies files outside of ${gaps[0]}.`);
-              return;
-            }
+          if ! echo "$ALL_AUTHORIZED" | grep -qFx "$ACTOR"; then
+            echo "::error::$ACTOR is not listed as an author or sponsor in $METADATA"
+            exit 1
+          fi
 
       - name: Merge PR
         env:
