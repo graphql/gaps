@@ -17,22 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Fetch PR changed files
-        id: files
+      - name: Determine affected GAP directory
+        id: gap
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.issue.number }}
         run: |
-          FILES=$(gh pr diff "$PR_NUMBER" --name-only)
-          echo "files<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$FILES" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-
-      - name: Determine affected GAP directory
-        id: gap
-        env:
-          CHANGED_FILES: ${{ steps.files.outputs.files }}
-        run: |
+          CHANGED_FILES=$(gh pr diff "$PR_NUMBER" --name-only)
           DIRS=$(echo "$CHANGED_FILES" | grep -oE '^gaps/GAP-[0-9]+' | sort -u)
 
           if [ -z "$DIRS" ]; then
