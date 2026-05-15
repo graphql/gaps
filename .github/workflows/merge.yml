@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >
       github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/merge')
+      github.event.comment.body == '/merge'
     steps:
       - uses: actions/checkout@v6
 
