@@ -16,50 +16,42 @@ jobs:
       github.event.comment.body == '/merge'
     steps:
       - uses: actions/checkout@v6
+      - run: npm install js-yaml
+      - name: Verify actor is authorized
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            const yaml = require('js-yaml');
 
-      - name: Determine affected GAP directory
-        id: gap
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.issue.number }}
-        run: |
-          CHANGED_FILES=$(gh pr diff "$PR_NUMBER" --name-only)
-          DIRS=$(echo "$CHANGED_FILES" | grep -oE '^gaps/GAP-[0-9]+' | sort -u)
+            const actor = context.payload.comment.user.login;
+            const prNumber = context.issue.number;
 
-          if [ -z "$DIRS" ]; then
-            echo "::error::PR does not touch any GAP directory."
-            exit 1
-          fi
+            const { data: files } = await github.rest.pulls.listFiles({
+              ...context.repo,
+              pull_number: prNumber,
+            });
 
-          DIR_COUNT=$(echo "$DIRS" | wc -l)
-          if [ "$DIR_COUNT" -ne 1 ]; then
-            echo "::error::PR touches multiple GAP directories. Author merge only works for single-GAP PRs."
-            exit 1
-          fi
+            const gapDirs = files
+              .map(f => f.filename)
+              .map(p => p.split('/')
+              .slice(0, 2).join('/'));
 
-          GAP_DIR="$DIRS"
-          NON_GAP_FILES=$(echo "$CHANGED_FILES" | grep -v "^${GAP_DIR}/" || true)
-          if [ -n "$NON_GAP_FILES" ]; then
-            echo "::error::PR modifies files outside of $GAP_DIR — author merge not permitted."
-            exit 1
-          fi
+            const gapsChanged = [...new Set(gapDirs)];
 
-          echo "gap_dir=$GAP_DIR" >> "$GITHUB_OUTPUT"
+            if (gapsChanged.length !== 1 || !gapsChanged[0].match(/^gaps\/GAP-\d+$/)) {
+              throw new Error('You can only run /merge for PRs that touch exactly one GAP directory and nothing else.');
+            }
 
-      - name: Check actor is an author or sponsor
-        env:
-          GAP_DIR: ${{ steps.gap.outputs.gap_dir }}
-          ACTOR: ${{ github.event.comment.user.login }}
-        run: |
-          METADATA="${GAP_DIR}/metadata.yml"
-          AUTHORS=$(yq '.authors[].githubUsername | sub("^@", "")' "$METADATA")
-          SPONSOR=$(yq '.sponsor | sub("^@", "")' "$METADATA")
-          ALL_AUTHORIZED=$(printf '%s\n%s' "$AUTHORS" "$SPONSOR" | sort -u)
+            const metadata = yaml.load(fs.readFileSync(`${gapsChanged[0]}/metadata.yml`, 'utf8'));
+            const authorizedMergers = new Set([
+              ...metadata.authors.map(author => author.githubUsername.replace(/^@/, '')),
+              metadata.sponsor.replace(/^@/, ''),
+            ]);
 
-          if ! echo "$ALL_AUTHORIZED" | grep -qFx "$ACTOR"; then
-            echo "::error::$ACTOR is not listed as an author or sponsor in $METADATA"
-            exit 1
-          fi
+            if (!authorizedMergers.has(actor)) {
+              throw new Error(`${actor} is not authorized to merge ${gapsChanged[0]}.`);
+            }
 
       - name: Merge PR
         env:
