@@ -1,0 +1,8 @@
+id: 0002
+title: Field Extensions
+status: proposal
+authors:
+  - "Emily Goodwin <goodwin.y.emily@gmail.com>"
+  - "Martin Bonnin <martin@mbonnin.net>"
+sponsor: "@egoodwinx"
+discussion: "https://github.com/graphql/graphql-spec/issues/1162"
