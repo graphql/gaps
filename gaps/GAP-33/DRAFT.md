@@ -1,4 +1,4 @@
-# GraphQL Schema Definition Language - Set Extensions
+# Set Extensions for Type System Documents
 
 This document specifics an alternative to the [Type System Document](https://spec.graphql.org/draft/#sec-Type-System) for defining a set-compatible version of the type system of a GraphQL Schema.
 
@@ -345,6 +345,55 @@ TypeSystemDirectiveLocation : one of
 
 SetDirectiveExtension : extend directive @ Name SetArgumentsDefinitionOrExtension? Directives[Const]
 
+# Set Operations
+
+With the provided syntax, we can create set operations
+- `union`, or ∪⁠ (also known as **merge** or **set addition**). `union` is associative and commutative, much like addition.
+- `intersect`, or ∩.
+- `exclude`, or \, or - (also known as **difference** or **set subtraction**). `exclude` is neither associative nor commutative, much like subtraction.
+
+## Union
+
+```graphql
+type A implements X {
+  field(arg: Int): String
+}
+```
+`union`
+```graphql
+type A @directive {
+  field(arg: Int!): String!
+}
+```
+will result in:
+```
+type A implements X @directive {
+  field(arg: Int!): String
+}
+```
+
+If a union could not possibly be commutative, i.e. the *order* of set union would affect the result,
+then the `union` operation should return a `UnionError`. The type of `A.field` below cannot be  determined.
+```
+type A {
+  field: Int!
+}
+```
+`union`
+```
+type A {
+  field: String!
+}
+```
+
+
+## Exclude
+
+## Intersect
+
+`A intersect B = A exclude (A exclude B)`.
+
+`intersect` is defined by the application of `exclude`.
 
 # Appendix: Grammar Summary
 
