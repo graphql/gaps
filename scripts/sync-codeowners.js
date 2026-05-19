@@ -16,7 +16,7 @@ async function getGapDirs() {
 
 async function main() {
   const dirs = await getGapDirs();
-  dirs.sort();
+  dirs.sort((a, b) => parseInt(a.name.split("-")[1], 10) - parseInt(b.name.split("-")[1], 10));
 
   const lines = await Promise.all(
     dirs.map(async (dir) => {
