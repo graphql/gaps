@@ -9,7 +9,7 @@
  *   find ./gaps -maxdepth 1 -type d -name 'GAP-*' | xargs -I{} node scripts/validate-structure.js {}
  */
 
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
@@ -114,6 +114,26 @@ function validateMetadata(dirPath, gapName) {
   }
 }
 
+function validateAllowedFiles(dirPath, gapName) {
+  const entries = readdirSync(dirPath);
+  for (const entry of entries) {
+    const fullPath = join(dirPath, entry);
+    if (statSync(fullPath).isDirectory()) {
+      error(
+        gapName,
+        `Unexpected directory "${entry}" found. GAP directories may only contain *.md files and metadata.yml. If you believe this is in error, please ping @graphql/gaps-editors.`,
+      );
+    }
+    if (entry === "metadata.yml" || entry.endsWith(".md")) {
+      continue;
+    }
+    error(
+      gapName,
+      `Unexpected file "${entry}" found. GAP directories may only contain *.md files and metadata.yml. If you believe this is in error, please ping @graphql/gaps-editors.`,
+    );
+  }
+}
+
 function main() {
   const { positionals } = parseArgs({ allowPositionals: true, strict: true });
 
@@ -136,6 +156,9 @@ function main() {
 
   // Validate directory naming
   const gapName = validateDirectoryNaming(dirPath);
+
+  // Validate only allowed files are present
+  validateAllowedFiles(dirPath, gapName);
 
   // Validate README.md exists
   validateReadmeExists(dirPath, gapName);
