@@ -53,7 +53,6 @@ describe("verify-merge", () => {
   });
 
   it("allows a co-author to merge", async () => {
-
     const github = makeGithub({
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
@@ -64,7 +63,6 @@ describe("verify-merge", () => {
   });
 
   it("allows the sponsor to merge", async () => {
-
     const github = makeGithub({
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
@@ -75,7 +73,6 @@ describe("verify-merge", () => {
   });
 
   it("rejects an unauthorized user", async () => {
-
     const github = makeGithub({
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
@@ -86,7 +83,6 @@ describe("verify-merge", () => {
   });
 
   it("rejects PRs touching multiple GAP directories", async () => {
-
     const github = makeGithub({
       files: [
         { filename: "gaps/GAP-10/DRAFT.md" },
@@ -100,7 +96,6 @@ describe("verify-merge", () => {
   });
 
   it("rejects PRs touching files outside gaps/", async () => {
-
     const github = makeGithub({
       files: [
         { filename: "gaps/GAP-10/DRAFT.md" },
@@ -114,7 +109,6 @@ describe("verify-merge", () => {
   });
 
   it("rejects when PR is not mergeable", async () => {
-
     const github = makeGithub({
       mergeable: false,
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
@@ -126,7 +120,6 @@ describe("verify-merge", () => {
   });
 
   it("rejects when mergeable is null (still computing)", async () => {
-
     const github = makeGithub({
       mergeable: null,
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
