@@ -154,7 +154,7 @@ describe("verify-merge", () => {
 
     await assert.rejects(
       verifyMerge({ github, context: makeContext() }),
-      { message: 'File path "gaps/GAP-10/../../../etc/passwd" contains path traversal or is not normalized.' },
+      /contains path traversal or is not normalized/,
     );
   });
 });
