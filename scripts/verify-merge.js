@@ -43,9 +43,7 @@ export default async ({ github, context }) => {
   const gapsChanged = [...gapDirSet];
 
   if (gapsChanged.length !== 1 || !gapsChanged[0].match(/^gaps\/GAP-\d+$/)) {
-    throw new Error(
-      "You can only run /merge for PRs that touch exactly one GAP directory and nothing else.",
-    );
+    throw new Error("You can only run /merge for PRs that touch exactly one GAP directory and nothing else.");
   }
 
   const gapDir = gapsChanged[0];
@@ -62,10 +60,8 @@ export default async ({ github, context }) => {
     await readFile(`${gapDir}/metadata.yml`, "utf8"),
   );
   const authorizedMergers = new Set([
-    ...metadata.authors.map((author) =>
-      author.githubUsername.replace(/^@/, ""),
-    ),
-    metadata.sponsor.replace(/^@/, ""),
+    ...metadata.authors.map(author => author.githubUsername.replace(/^@/, '')),
+    metadata.sponsor.replace(/^@/, ''),
   ]);
 
   if (!authorizedMergers.has(actor)) {
