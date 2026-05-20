@@ -37,7 +37,7 @@ export default async ({ github, context }) => {
         `File path "${f.filename}" contains path traversal or is not normalized.`,
       );
     }
-    // e.g. 'gaps/GAP-10/DRAFT.md' -> 'gaps/GAP-10'
+    // e.g. 'gaps/GAP-10/versions/2026-01.md' -> 'gaps/GAP-10'
     gapDirs.add(f.filename.split("/").slice(0, 2).join("/"));
   }
 
