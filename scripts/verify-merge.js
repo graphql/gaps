@@ -19,9 +19,7 @@ export default async ({ github, context }) => {
   ]);
 
   if (files.length >= 100) {
-    throw new Error(
-      "PR touches too many files (100+). /merge only supports PRs with fewer than 100 changed files.",
-    );
+    throw new Error("PR touches too many files!");
   }
 
   if (pr.mergeable === false) {
