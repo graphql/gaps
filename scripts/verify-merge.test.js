@@ -129,15 +129,16 @@ describe("verify-merge", () => {
     );
   });
 
-  it("allows merge when mergeable is null (still computing)", async () => {
+  it("rejects when mergeable is null (still computing)", async () => {
     vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
     const github = makeGithub({
       mergeable: null,
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
 
-    await assert.doesNotReject(
+    await assert.rejects(
       verifyMerge({ github, context: makeContext() }),
+      { message: "GitHub is still computing mergeability. Try again in a moment." },
     );
   });
 

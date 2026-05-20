@@ -18,6 +18,10 @@ export default async ({ github, context }) => {
     throw new Error("PR touches too many files!");
   }
 
+  if (pr.mergeable === null) {
+    throw new Error("GitHub is still computing mergeability. Try again in a moment.");
+  }
+
   if (pr.mergeable === false) {
     throw new Error("PR is not in a mergeable state. Resolve conflicts and try again.");
   }
