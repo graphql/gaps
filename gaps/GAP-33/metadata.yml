@@ -1,0 +1,12 @@
+id: 33
+title: Set Extensions for Type System Documents
+summary: >
+  An auxiliary syntax extending the Type System Document syntax,
+  unlocking set-like operations (union, exclude, intersect) on Schema IDL.
+status: proposal
+authors:
+  - name: "Matt Mahoney"
+    email: "mahoney.mattj@gmail.com"
+    githubUsername: "@mjmahone"
+sponsor: "@magicmark"
+discussion: "https://github.com/graphql/gaps/pull/33"

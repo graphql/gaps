@@ -39,7 +39,7 @@ async function findGapDirs(parent) {
   return (await readdir(parent, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory() && entry.name.startsWith("GAP-"))
     .map((entry) => entry.name)
-    .sort()
+    .sort((a, b) => parseInt(a.split("-")[1], 10) - parseInt(b.split("-")[1], 10))
     .map((name) => join(parent, name));
 }
 
