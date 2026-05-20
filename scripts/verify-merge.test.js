@@ -91,10 +91,10 @@ describe("verify-merge", () => {
       ],
     });
 
-    await assert.rejects(
-      verifyMerge({ github, context: makeContext() }),
-      { message: "You can only run /merge for PRs that touch exactly one GAP directory and nothing else." },
-    );
+    await assert.rejects(verifyMerge({ github, context: makeContext() }), {
+      message:
+        "You can only run /merge for PRs that touch exactly one GAP directory and nothing else.",
+    });
   });
 
   it("rejects PRs touching files outside gaps/", async () => {
@@ -105,10 +105,10 @@ describe("verify-merge", () => {
       ],
     });
 
-    await assert.rejects(
-      verifyMerge({ github, context: makeContext() }),
-      { message: "You can only run /merge for PRs that touch exactly one GAP directory and nothing else." },
-    );
+    await assert.rejects(verifyMerge({ github, context: makeContext() }), {
+      message:
+        "You can only run /merge for PRs that touch exactly one GAP directory and nothing else.",
+    });
   });
 
   it("rejects when PR is not mergeable", async () => {
@@ -117,10 +117,10 @@ describe("verify-merge", () => {
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
 
-    await assert.rejects(
-      verifyMerge({ github, context: makeContext() }),
-      { message: "PR is not in a mergeable state. Resolve conflicts and try again." },
-    );
+    await assert.rejects(verifyMerge({ github, context: makeContext() }), {
+      message:
+        "PR is not in a mergeable state. Resolve conflicts and try again.",
+    });
   });
 
   it("rejects when mergeable is null (still computing)", async () => {
@@ -129,10 +129,9 @@ describe("verify-merge", () => {
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
 
-    await assert.rejects(
-      verifyMerge({ github, context: makeContext() }),
-      { message: "GitHub is still computing mergeability. Try again in a moment." },
-    );
+    await assert.rejects(verifyMerge({ github, context: makeContext() }), {
+      message: "GitHub is still computing mergeability. Try again in a moment.",
+    });
   });
 
   it("rejects PRs with 100+ files", async () => {
@@ -141,10 +140,9 @@ describe("verify-merge", () => {
     }));
     const github = makeGithub({ files });
 
-    await assert.rejects(
-      verifyMerge({ github, context: makeContext() }),
-      { message: "PR touches too many files!" },
-    );
+    await assert.rejects(verifyMerge({ github, context: makeContext() }), {
+      message: "PR touches too many files!",
+    });
   });
 
   it("rejects path traversal attempts", async () => {
@@ -152,9 +150,9 @@ describe("verify-merge", () => {
       files: [{ filename: "gaps/GAP-10/../../../etc/passwd" }],
     });
 
-    await assert.rejects(
-      verifyMerge({ github, context: makeContext() }),
-      { message: 'File path "gaps/GAP-10/../../../etc/passwd" contains path traversal or is not normalized.' },
-    );
+    await assert.rejects(verifyMerge({ github, context: makeContext() }), {
+      message:
+        'File path "gaps/GAP-10/../../../etc/passwd" contains path traversal or is not normalized.',
+    });
   });
 });
