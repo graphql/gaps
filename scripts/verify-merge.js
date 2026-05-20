@@ -56,9 +56,7 @@ export default async ({ github, context }) => {
     }
   }
 
-  const metadata = parseYaml(
-    await readFile(`${gapDir}/metadata.yml`, "utf8"),
-  );
+  const metadata = parseYaml(await readFile(`${gapDir}/metadata.yml`, "utf8"));
   const authorizedMergers = new Set([
     ...metadata.authors.map(author => author.githubUsername.replace(/^@/, '')),
     metadata.sponsor.replace(/^@/, ''),
