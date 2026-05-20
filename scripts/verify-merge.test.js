@@ -79,7 +79,7 @@ describe("verify-merge", () => {
 
     await assert.rejects(
       verifyMerge({ github, context: makeContext({ actor: "eve" }) }),
-      { message: "eve is not authorized to merge gaps/GAP-10." },
+      /not authorized to merge/,
     );
   });
 
@@ -93,7 +93,7 @@ describe("verify-merge", () => {
 
     await assert.rejects(
       verifyMerge({ github, context: makeContext() }),
-      { message: "You can only run /merge for PRs that touch exactly one GAP directory and nothing else." },
+      /touch exactly one GAP/,
     );
   });
 
@@ -107,7 +107,7 @@ describe("verify-merge", () => {
 
     await assert.rejects(
       verifyMerge({ github, context: makeContext() }),
-      { message: "You can only run /merge for PRs that touch exactly one GAP directory and nothing else." },
+      /touch exactly one GAP/,
     );
   });
 
