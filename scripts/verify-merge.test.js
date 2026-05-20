@@ -6,7 +6,7 @@ mock.module("fs/promises", { exports: vol.promises });
 
 const { default: verifyMerge } = await import("./verify-merge.js");
 
-function makeContext({ actor = "magicmark", prNumber = 1 } = {}) {
+function makeContext({ actor = "alice", prNumber = 1 } = {}) {
   return {
     payload: { comment: { user: { login: actor } } },
     issue: { number: prNumber },
@@ -27,13 +27,13 @@ function makeGithub({ mergeable = true, files = [] } = {}) {
 
 const METADATA = `
 authors:
-  - name: "Mark Larah"
-    email: "markl@yelp.com"
-    githubUsername: "@magicmark"
-  - name: "Michael Rebello"
-    email: "me@michaelrebello.com"
-    githubUsername: "@rebello95"
-sponsor: "@magicmark"
+  - name: "Alice"
+    email: "alice@example.com"
+    githubUsername: "@alice"
+  - name: "Bob"
+    email: "bob@example.com"
+    githubUsername: "@bob"
+sponsor: "@charlie"
 `;
 
 beforeEach(() => {
@@ -41,25 +41,14 @@ beforeEach(() => {
 });
 
 describe("verify-merge", () => {
-  it("allows an authorized author to merge", async () => {
+  it("allows an author to merge", async () => {
     vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
     const github = makeGithub({
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
 
     await assert.doesNotReject(
-      verifyMerge({ github, context: makeContext({ actor: "magicmark" }) }),
-    );
-  });
-
-  it("allows the sponsor to merge", async () => {
-    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
-    const github = makeGithub({
-      files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
-    });
-
-    await assert.doesNotReject(
-      verifyMerge({ github, context: makeContext({ actor: "magicmark" }) }),
+      verifyMerge({ github, context: makeContext({ actor: "alice" }) }),
     );
   });
 
@@ -70,7 +59,18 @@ describe("verify-merge", () => {
     });
 
     await assert.doesNotReject(
-      verifyMerge({ github, context: makeContext({ actor: "rebello95" }) }),
+      verifyMerge({ github, context: makeContext({ actor: "bob" }) }),
+    );
+  });
+
+  it("allows the sponsor to merge", async () => {
+    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
+    const github = makeGithub({
+      files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
+    });
+
+    await assert.doesNotReject(
+      verifyMerge({ github, context: makeContext({ actor: "charlie" }) }),
     );
   });
 
@@ -81,8 +81,8 @@ describe("verify-merge", () => {
     });
 
     await assert.rejects(
-      verifyMerge({ github, context: makeContext({ actor: "evil-hacker" }) }),
-      { message: "evil-hacker is not authorized to merge gaps/GAP-10." },
+      verifyMerge({ github, context: makeContext({ actor: "eve" }) }),
+      { message: "eve is not authorized to merge gaps/GAP-10." },
     );
   });
 
