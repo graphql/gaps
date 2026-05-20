@@ -28,7 +28,7 @@ export default async ({ github, context }) => {
     );
   }
 
-  const gapDirSet = new Set();
+  const gapDirs = new Set();
 
   for (const f of files) {
     const normalized = path.normalize(f.filename);
@@ -37,10 +37,10 @@ export default async ({ github, context }) => {
         `File path "${f.filename}" contains path traversal or is not normalized.`,
       );
     }
-    gapDirSet.add(f.filename.split("/").slice(0, 2).join("/"));
+    gapDirs.add(f.filename.split("/").slice(0, 2).join("/"));
   }
 
-  const gapsChanged = [...gapDirSet];
+  const gapsChanged = [...gapDirs];
 
   if (gapsChanged.length !== 1 || !gapsChanged[0].match(/^gaps\/GAP-\d+$/)) {
     throw new Error("You can only run /merge for PRs that touch exactly one GAP directory and nothing else.");
