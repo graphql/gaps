@@ -38,11 +38,11 @@ sponsor: "@charlie"
 
 beforeEach(() => {
   vol.reset();
+  vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
 });
 
 describe("verify-merge", () => {
   it("allows an author to merge", async () => {
-    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
     const github = makeGithub({
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
@@ -53,7 +53,7 @@ describe("verify-merge", () => {
   });
 
   it("allows a co-author to merge", async () => {
-    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
+
     const github = makeGithub({
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
@@ -64,7 +64,7 @@ describe("verify-merge", () => {
   });
 
   it("allows the sponsor to merge", async () => {
-    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
+
     const github = makeGithub({
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
@@ -75,7 +75,7 @@ describe("verify-merge", () => {
   });
 
   it("rejects an unauthorized user", async () => {
-    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
+
     const github = makeGithub({
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
     });
@@ -86,7 +86,7 @@ describe("verify-merge", () => {
   });
 
   it("rejects PRs touching multiple GAP directories", async () => {
-    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
+
     const github = makeGithub({
       files: [
         { filename: "gaps/GAP-10/DRAFT.md" },
@@ -100,7 +100,7 @@ describe("verify-merge", () => {
   });
 
   it("rejects PRs touching files outside gaps/", async () => {
-    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
+
     const github = makeGithub({
       files: [
         { filename: "gaps/GAP-10/DRAFT.md" },
@@ -114,7 +114,7 @@ describe("verify-merge", () => {
   });
 
   it("rejects when PR is not mergeable", async () => {
-    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
+
     const github = makeGithub({
       mergeable: false,
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
@@ -126,7 +126,7 @@ describe("verify-merge", () => {
   });
 
   it("rejects when mergeable is null (still computing)", async () => {
-    vol.fromJSON({ "gaps/GAP-10/metadata.yml": METADATA });
+
     const github = makeGithub({
       mergeable: null,
       files: [{ filename: "gaps/GAP-10/DRAFT.md" }],
