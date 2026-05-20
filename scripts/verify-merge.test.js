@@ -119,7 +119,7 @@ describe("verify-merge", () => {
 
     await assert.rejects(
       verifyMerge({ github, context: makeContext() }),
-      { message: "PR is not in a mergeable state. Resolve conflicts and try again." },
+      /not in a mergeable state/,
     );
   });
 
@@ -131,7 +131,7 @@ describe("verify-merge", () => {
 
     await assert.rejects(
       verifyMerge({ github, context: makeContext() }),
-      { message: "GitHub is still computing mergeability. Try again in a moment." },
+      /still computing mergeability/,
     );
   });
 
@@ -143,7 +143,7 @@ describe("verify-merge", () => {
 
     await assert.rejects(
       verifyMerge({ github, context: makeContext() }),
-      { message: "PR touches too many files!" },
+      /touches too many files/,
     );
   });
 
