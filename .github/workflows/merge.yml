@@ -13,16 +13,26 @@ jobs:
     runs-on: ubuntu-latest
     if: >
       github.event.issue.pull_request &&
-      github.event.comment.body == '/merge'
+      github.event.comment.body == '/merge' &&
+      github.event.comment.author_association != 'NONE'
     steps:
       - uses: actions/checkout@v6
-      - run: npm install js-yaml
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - run: npm ci
 
       - name: Verify actor is authorized
         uses: actions/github-script@v9
         with:
           script: |
-            const verifyMerge = require('./scripts/verify-merge.js');
+            const { default: verifyMerge } = await import(
+              `${process.env.GITHUB_WORKSPACE}/scripts/verify-merge.js`
+            );
             await verifyMerge({ github, context });
 
       - name: Merge PR
@@ -30,4 +40,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.issue.number }}
         run: |
-          gh pr merge "$PR_NUMBER" --squash --auto
+          gh pr merge "$PR_NUMBER" --squash
