@@ -6,16 +6,12 @@ export default async ({ github, context }) => {
   const actor = context.payload.comment.user.login;
   const prNumber = context.issue.number;
 
-  const [{ data: pr }, { data: files }] = await Promise.all([
-    github.rest.pulls.get({
-      ...context.repo,
-      pull_number: prNumber,
-    }),
-    github.rest.pulls.listFiles({
-      ...context.repo,
-      pull_number: prNumber,
-      per_page: 100,
-    }),
+  const [
+    { data: pr },
+    { data: files },
+  ] = await Promise.all([
+    github.rest.pulls.get({ ...context.repo, pull_number: prNumber }),
+    github.rest.pulls.listFiles({ ...context.repo, pull_number: prNumber, per_page: 100 }),
   ]);
 
   if (files.length >= 100) {
@@ -23,9 +19,7 @@ export default async ({ github, context }) => {
   }
 
   if (pr.mergeable === false) {
-    throw new Error(
-      "PR is not in a mergeable state. Resolve conflicts and try again.",
-    );
+    throw new Error("PR is not in a mergeable state. Resolve conflicts and try again.");
   }
 
   const gapDirs = new Set();
@@ -33,10 +27,9 @@ export default async ({ github, context }) => {
   for (const f of files) {
     const normalized = path.normalize(f.filename);
     if (normalized !== f.filename || normalized.startsWith("..")) {
-      throw new Error(
-        `File path "${f.filename}" contains path traversal or is not normalized.`,
-      );
+      throw new Error(`File path "${f.filename}" contains path traversal or is not normalized.`);
     }
+
     // e.g. 'gaps/GAP-10/versions/2026-01.md' -> 'gaps/GAP-10'
     gapDirs.add(f.filename.split("/").slice(0, 2).join("/"));
   }
@@ -51,9 +44,7 @@ export default async ({ github, context }) => {
 
   for (const f of files) {
     if (!f.filename.startsWith(`${gapDir}/`)) {
-      throw new Error(
-        `File "${f.filename}" is outside the expected GAP directory (${gapDir}).`,
-      );
+      throw new Error(`File "${f.filename}" is outside the expected GAP directory (${gapDir}).`);
     }
   }
 
