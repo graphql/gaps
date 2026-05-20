@@ -30,9 +30,7 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
-            const { default: verifyMerge } = await import(
-              `${process.env.GITHUB_WORKSPACE}/scripts/verify-merge.js`
-            );
+            const { default: verifyMerge } = await import('./scripts/verify-merge.js');
             await verifyMerge({ github, context });
 
       - name: Merge PR
