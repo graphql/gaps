@@ -7,6 +7,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: preview-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build site
@@ -29,11 +33,12 @@ jobs:
         run: npm run build
 
       - name: Save PR metadata
-        run: echo "${{ github.event.pull_request.number }}" > _site/.pr-number
+        run: echo "${{ github.event.pull_request.number }}" > _site/pr-number
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
           name: preview-build
           path: _site
-          retention-days: 1
+          include-hidden-files: true
+          retention-days: 3
