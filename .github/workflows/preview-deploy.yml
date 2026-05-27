@@ -84,7 +84,7 @@ jobs:
                 '### 🚀 Deploy Preview',
                 '',
                 '- **This commit:** ${{ steps.deploy.outputs.deployment-url }}',
-                '- **This PR** <sub>(kept up to date)</sub>: https://pr-${{ steps.pr.outputs.number }}-gaps-website-test-1.markl.workers.dev'
+                '- **This PR** <sub>(kept up to date)</sub>: https://pr-${{ steps.pr.outputs.number }}-gaps.graphql-foundation.workers.dev'
               ].join('\n')
             });
 
