@@ -28,6 +28,14 @@ import { parse as parseYaml } from "yaml";
 
 const require = createRequire(import.meta.url);
 const specMarkdown = require("@mlarah/spec-md");
+
+function discussionUrl(discussion) {
+  const match = discussion.match(/^([^/]+\/[^#]+)#(\d+)$/);
+  if (match) {
+    return `https://github.com/${match[1]}/pull/${match[2]}`;
+  }
+  return discussion;
+}
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, "..");
 const websiteDir = join(rootDir, "website");
@@ -151,7 +159,8 @@ async function renderGapMeta(gap) {
   if (gap.discussion) {
     items.push({
       label: "Discussion",
-      href: gap.discussion,
+      href: discussionUrl(gap.discussion),
+      value: gap.discussion,
     });
   }
 
@@ -281,7 +290,7 @@ async function buildGap(gapDir, outDir) {
           [gapName]: gapMetadata.title,
           Version: document.label,
           Authors: gapMetadata.authors.map((a) => a.name).join(", "),
-          Discussion: gapMetadata.discussion,
+          Discussion: discussionUrl(gapMetadata.discussion),
         },
       });
 

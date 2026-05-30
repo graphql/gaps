@@ -105,11 +105,14 @@ function validateMetadata(dirPath, gapName) {
     }
   }
 
-  // Validate discussion is a valid URL
-  if (!validator.isURL(metadata.discussion)) {
+  // Validate discussion is a valid URL or GitHub shorthand (owner/repo#number)
+  const isGitHubShorthand = /^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+#\d+$/.test(
+    metadata.discussion,
+  );
+  if (!isGitHubShorthand && !validator.isURL(metadata.discussion)) {
     error(
       gapName,
-      `metadata.yml discussion must be a valid URL (got "${metadata.discussion}")`,
+      `metadata.yml discussion must be a valid URL or GitHub shorthand e.g. "graphql/gaps#10" (got "${metadata.discussion}")`,
     );
   }
 }

@@ -4,7 +4,7 @@
     <dt>{{label}}</dt>
     <dd>
       {{#if href}}
-      <a href="{{href}}">Open discussion</a>
+      <a href="{{href}}">{{#if value}}{{value}}{{else}}Open discussion{{/if}}</a>
       {{else}} {{value}} {{/if}}
     </dd>
   </div>
