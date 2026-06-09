@@ -1,0 +1,15 @@
+id: 0
+title: "Identity: @fetchable"
+summary: >
+  A schema directive declaring that a type can be independently (re-)fetched via
+  generated type-specific root fields (`fetch__Type`, `multifetch__Type`). Builds
+  on the companion `@strong` directive — every `@fetchable` type must be `@strong`.
+status: proposal
+authors:
+  - name: "Matt Mahoney"
+    email: "mahoney.mattj@gmail.com"
+    githubUsername: "@mjmahone"
+sponsor: "@TBD"
+discussion: "https://github.com/graphql/gaps/pull/0"
+related:
+  - 33
