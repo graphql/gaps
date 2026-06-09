@@ -2,7 +2,7 @@
 
 > [!NOTE]
 > This is one of a pair of companion proposals. **Identity: @fetchable**
-> ([GAP-00](../GAP-00/README.md) — placeholder number) builds on `@strong` to
+> ([GAP-55](../GAP-55/README.md)) builds on `@strong` to
 > describe types that can be independently (re-)fetched given their identity. The
 > two are designed to be read together but may be adopted independently.
 
@@ -46,7 +46,7 @@ In particular, `@strong` is particularly useful when:
   within a normalized cache.
 
 The companion `@fetchable` directive (see
-[Identity: @fetchable](../GAP-00/README.md)) builds on `@strong` to describe how
+[Identity: @fetchable](../GAP-55/README.md)) builds on `@strong` to describe how
 a strong identity can be used to (re-)fetch an object from a type-specific root
 field.
 

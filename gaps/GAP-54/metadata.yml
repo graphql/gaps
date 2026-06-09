@@ -1,4 +1,4 @@
-id: 0
+id: 54
 title: "Identity: @strong"
 summary: >
   A schema directive marking a type as having a strong identity — an identifier
@@ -10,6 +10,7 @@ authors:
     email: "mahoney.mattj@gmail.com"
     githubUsername: "@mjmahone"
 sponsor: "@TBD"
-discussion: "https://github.com/graphql/gaps/pull/0"
+discussion: "https://github.com/graphql/gaps/pull/54"
 related:
   - 33
+  - 55
