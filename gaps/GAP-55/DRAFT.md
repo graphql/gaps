@@ -2,7 +2,7 @@
 
 > [!NOTE]
 > This is one of a pair of companion proposals. `@fetchable` builds on **Identity:
-> @strong** ([GAP-0](../GAP-0/README.md) — placeholder number), which marks types
+> @strong** ([GAP-54](../GAP-54/README.md)), which marks types
 > as having an identity. The two are designed to be read together but may be
 > adopted independently.
 
@@ -22,7 +22,7 @@ type-unique identifier. This enables refetching, cache eviction, and
 optimistic-update tooling to re-resolve an object in isolation.
 
 `@fetchable` builds on the companion
-[`@strong`](../GAP-0/README.md) directive: a type can only be fetched by an
+[`@strong`](../GAP-54/README.md) directive: a type can only be fetched by an
 identifier if it has one, so every `@fetchable` type must also be `@strong`. The
 two need not, however, use the same field — `@fetchable(field_name: "<field>")`
 does not have to match `@strong(field_name: "<field>")`.

@@ -1,4 +1,4 @@
-id: 0
+id: 55
 title: "Identity: @fetchable"
 summary: >
   A schema directive declaring that a type can be independently (re-)fetched via
@@ -10,6 +10,7 @@ authors:
     email: "mahoney.mattj@gmail.com"
     githubUsername: "@mjmahone"
 sponsor: "@TBD"
-discussion: "https://github.com/graphql/gaps/pull/0"
+discussion: "https://github.com/graphql/gaps/pull/55"
 related:
   - 33
+  - 54
