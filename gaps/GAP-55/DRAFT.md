@@ -168,11 +168,9 @@ specify their own `field_name` and _need not_ share the same value.
 
 ## New Implementation Recommendations
 
-This specification _matches behavior in existing implementations_: there are
-adjacent, semi-duplicated APIs with regards to `__token` and
-`@fetchable(field_name:)`. As this specification is a result of iterative,
-in-production implementations, it describes what _is_ rather than what _ought to
-be_.
+This specification _matches behavior in existing implementations_: as this
+specification is a result of iterative, in-production implementations, it
+describes what _is_ rather than what _ought to be_.
 
 If you're creating a new GraphQL implementation, you should, if possible:
 
