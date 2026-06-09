@@ -44,7 +44,6 @@ Related discussions and prior art:
 
 - [Global Object Identification](https://relay.dev/graphql/objectidentification.htm).
 - [Apollo Federation entities and `@key`](https://www.apollographql.com/docs/federation/entities/).
-- [GAP-33 — Set Extensions for Type System Documents](../GAP-33/README.md).
 - Companion proposal: [Identity: @strong](../GAP-54/README.md).
 
 ## Status
