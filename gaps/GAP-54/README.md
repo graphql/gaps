@@ -58,6 +58,20 @@ Related discussions and prior art:
 - [Apollo Federation entities and `@key`](https://www.apollographql.com/docs/federation/entities/).
 - Companion proposal: [Identity: @fetchable](../GAP-55/README.md).
 
+**Reference implementation.** Relay already carries (partial, partly
+undocumented) support for these annotations:
+
+- Relay's directive docs name both annotations under
+  [`@refetchable(..., preferFetchable:)`](https://relay.dev/docs/api-reference/graphql/graphql-directives/):
+  it is "useful for schemas that have adopted the `@strong` and `@fetchable`
+  server annotations".
+- The `strong_id__` meta-field is defined in the Relay compiler — see
+  `strongid_field_name: "strong_id__"` in
+  [`compiler/crates/schema/src/in_memory.rs`](https://github.com/facebook/relay/blob/main/compiler/crates/schema/src/in_memory.rs).
+- "Strong" objects are recognized as those implementing `Node` — see the
+  reserved-`id` error in
+  [`compiler/crates/relay-transforms/src/errors.rs`](https://github.com/facebook/relay/blob/main/compiler/crates/relay-transforms/src/errors.rs).
+
 ## Status
 
 **Proposal.** Initial draft; not yet sponsored.
