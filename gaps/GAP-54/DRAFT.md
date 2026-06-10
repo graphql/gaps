@@ -19,20 +19,19 @@ the same entity, wherever they appear in a response.
 
 GraphQL responses frequently describe the same underlying entity in more than one
 place — the same user as the `author` of a post and as a `friend` of the viewer,
-for example. Whether two such positions denote the _same_ entity is information
-that clients today must infer from convention (an `id` field, the `Node`
-interface, a Federation `@key`).
+for example. Reconciling two response values is often done via convention, for
+instance by assuming two values with the same `id` field value are the same.
 
-`@strong` makes that explicit: two values of a `@strong` type that share the same
+`@strong` makes expectations explicit: two values of a `@strong` type that share the same
 identity are the same entity, wherever they appear.
 
-Additionally, we add a meta-field to _all_ types, `strong_id__: ID`. When a type
+We add a meta-field to _all_ types, `strong_id__: ID`. When a type
 is `@strong`, `strong_id__` is `@semanticNonNull`. If `@strong(field_name: <field>)`
 is specified, then `strong_id__` returns the same value as `<Type>.<field>`.
 
 This is an alternative form of identity to the
 [Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm).
-In particular, `@strong` is particularly useful when:
+In particular, `@strong` may be useful when:
 
 - You cannot guarantee globally unique IDs for all objects in the schema.
 - You have already created an expensive or non-identifying `id` field that you
