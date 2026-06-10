@@ -98,6 +98,21 @@ Related discussions and prior art:
 - [Apollo Federation entities and `@key`](https://www.apollographql.com/docs/federation/entities/).
 - Companion proposal: [Identity: @strong](../GAP-54/README.md).
 
+**Reference implementation.** Relay already carries (partial, partly
+undocumented) support for `@fetchable`:
+
+- Relay's directive docs reference it under
+  [`@refetchable(..., preferFetchable:)`](https://relay.dev/docs/api-reference/graphql/graphql-directives/):
+  the flag makes the compiler "prefer generating `fetch_MyType(): MyType`
+  queries … useful for schemas that have adopted the `@strong` and `@fetchable`
+  server annotations".
+- The `@fetchable(field_name:)` directive is defined in the Relay compiler —
+  [`compiler/crates/schema/src/flatbuffer.rs`](https://github.com/facebook/relay/blob/main/compiler/crates/schema/src/flatbuffer.rs).
+- Relay generates per-type fetch queries from `@fetchable` via
+  [`fetchable_query_generator.rs`](https://github.com/facebook/relay/blob/main/compiler/crates/relay-transforms/src/refetchable_fragment/fetchable_query_generator.rs).
+- `@fetchable` on interfaces is shown in the
+  [Relay 15 release notes](https://relay.dev/blog/2023/03/30/relay-15/).
+
 ## Status
 
 **Proposal.** Initial draft; not yet sponsored.
