@@ -29,7 +29,7 @@ does not have to match `@strong(field_name: "<field>")`.
 
 This is an alternative form of fetchability to the
 [Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm).
-In particular, `@fetchable` is particularly useful when:
+`@fetchable` may be useful when:
 
 - You want to improve performance by avoiding costly `node(id: $id)` root field
   resolution in favor of type-specific root fields.
@@ -44,16 +44,17 @@ single-item root field, a multi-item root field, and an edge type:
 ```graphql
 type Query {
   fetch__PhotoStory(id: ID!): PhotoStory
-  multifetch__PhotoStory(ids: [ID!]!): [PhotoStoryMultiFetchEdge!]!
+  multifetch__PhotoStory(ids: [ID!]!): [PhotoStoryMultifetchEdge!]!
 }
 
-type PhotoStoryMultiFetchEdge {
+type PhotoStoryMultifetchEdge {
   node: PhotoStory
-  node_id: ID
+  node_id: ID!
 }
 ```
 
-where `node_id` is the `<Type>.<field_name>` value.
+where `node_id` echoes the requested `id` (equal to the resolved `node`'s
+`<field_name>` value when present).
 
 **Example**
 
@@ -133,14 +134,14 @@ For each `@fetchable` type `<Type>`:
 
 - a single-item query field, `Query.fetch__<Type>(id: ID!): <Type>`, exists.
 - a multi-item query field,
-  `Query.multifetch__<Type>(ids: [ID!]!): [<Type>MultiFetchEdge!]!`, exists.
-- `type <Type>MultiFetchEdge { node: <Type>, node_id: ID }` exists.
+  `Query.multifetch__<Type>(ids: [ID!]!): [<Type>MultifetchEdge!]!`, exists.
+- `type <Type>MultifetchEdge { node: <Type>, node_id: ID! }` exists.
 
 `field_name` is always required. It names the field whose value can be passed to
 the generated `Query.fetch__<Type>(id:)` and `Query.multifetch__<Type>(ids:)`
 fields to (re-)fetch the object with the exact same _identity_.
 
-`multifetch__<Type>(ids: $ids)` must return exactly one `<Type>MultiFetchEdge`
+`multifetch__<Type>(ids: $ids)` must return exactly one `<Type>MultifetchEdge`
 per input `id`, in the same order as the input `ids`: the result list always has
 the same length as the input list. For each edge:
 
