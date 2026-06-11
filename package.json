@@ -12,8 +12,7 @@
     "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1",
     "test:format": "prettier --check . || npm run suggest:format",
     "test:spelling": "cspell \"spec/**/*.md\" README.md LICENSE.md",
-    "test:structure": "find ./gaps -maxdepth 1 -type d -name 'GAP-*' | xargs -I{} ./scripts/validate-structure.js {}",
-    "sync:codeowners": "node scripts/sync-codeowners.js"
+    "test:structure": "find ./gaps -maxdepth 1 -type d -name 'GAP-*' | xargs -I{} ./scripts/validate-structure.js {}"
   },
   "devDependencies": {
     "@mlarah/spec-md": "^3.1.0",
@@ -22,6 +21,7 @@
     "handlebars": "^4.7.9",
     "lodash.memoize": "^4.1.2",
     "lodash.merge": "^4.6.2",
+    "memfs": "^4.57.2",
     "nodemon": "2.0.20",
     "p-limit": "^7.3.0",
     "prettier": "^3.8.1",
