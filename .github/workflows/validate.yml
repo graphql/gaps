@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -26,3 +28,25 @@ jobs:
 
       - name: Validate GAP structure
         run: npm run test:structure
+
+      - name: Validate new GAP id matches PR number
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # Find metadata.yml files newly added in this PR
+          new_metadata_files=$(git diff --name-only --diff-filter=A origin/main...HEAD -- 'gaps/*/metadata.yml')
+
+          if [ -z "$new_metadata_files" ]; then
+            echo "No new metadata.yml files added in this PR."
+            exit 0
+          fi
+
+          for file in $new_metadata_files; do
+            id=$(grep -m1 '^id:' "$file" | awk '{print $2}')
+            if [ "$id" != "$PR_NUMBER" ]; then
+              echo "::error file=${file}::metadata.yml 'id' field is ${id}, but must match the PR number (${PR_NUMBER}). See CONTRIBUTING.md."
+              exit 1
+            fi
+            echo "✓ ${file}: id ${id} matches PR #${PR_NUMBER}"
+          done
