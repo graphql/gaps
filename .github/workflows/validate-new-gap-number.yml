@@ -25,6 +25,4 @@ jobs:
         run: npm ci
 
       - name: Validate new GAP id matches PR number
-        run: node scripts/validate-new-gap-number.js
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node scripts/validate-new-gap-number.js --pr-number ${{ github.event.pull_request.number }}

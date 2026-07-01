@@ -4,18 +4,26 @@
  * Validates that newly added GAP directories and their metadata.yml `id` field
  * both match the PR number, per CONTRIBUTING.md.
  *
- * Usage: PR_NUMBER=123 node scripts/validate-new-gap-number.js
+ * Usage: node scripts/validate-new-gap-number.js --pr-number 123
  */
 
 import { readFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { dirname, basename } from "node:path";
+import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
 
-const prNumber = process.env.PR_NUMBER;
+const { values } = parseArgs({
+  options: {
+    "pr-number": { type: "string" },
+  },
+  strict: true,
+});
+
+const prNumber = values["pr-number"];
 
 if (!prNumber) {
-  console.error("PR_NUMBER environment variable is required.");
+  console.error("Usage: node scripts/validate-new-gap-number.js --pr-number <number>");
   process.exit(1);
 }
 
