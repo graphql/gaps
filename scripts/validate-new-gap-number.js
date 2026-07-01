@@ -22,11 +22,6 @@ const { values } = parseArgs({
 
 const prNumber = values["pr-number"];
 
-if (!prNumber) {
-  console.error("Usage: node scripts/validate-new-gap-number.js --pr-number <number>");
-  process.exit(1);
-}
-
 const newMetadataFiles = execSync(
   "git diff --name-only --diff-filter=A origin/main...HEAD -- 'gaps/*/metadata.yml'",
   { encoding: "utf8" },
