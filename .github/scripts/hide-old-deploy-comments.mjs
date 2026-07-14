@@ -2,7 +2,7 @@
 // Called from preview-deploy.yml via actions/github-script.
 
 export default async function run({ github, context, prNumber }) {
-  const { data: comments } = await github.rest.issues.listComments({
+  const comments = await github.paginate(github.rest.issues.listComments, {
     owner: context.repo.owner,
     repo: context.repo.repo,
     issue_number: prNumber,
@@ -10,7 +10,11 @@ export default async function run({ github, context, prNumber }) {
 
   await Promise.all(
     comments
-      .filter((c) => c.body.includes("<!-- deploy-preview -->"))
+      .filter(
+        (c) =>
+          c.user.login === "github-actions[bot]" &&
+          c.body.includes("<!-- deploy-preview -->")
+      )
       .map((c) =>
         github.graphql(
           `
