@@ -20,9 +20,14 @@ jobs:
       - name: Checkout wrangler config
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          ref: main
           sparse-checkout: |
             wrangler.jsonc
+            .github/scripts
 
+      # Security: actions/download-artifact handles zip extraction safely
+      # (immune to zip-slip), and the artifact only contains static HTML/CSS/JS
+      # built by the unprivileged preview-build workflow.
       - name: Download build artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -45,34 +50,27 @@ jobs:
           fi
           echo "number=$PR_NUM" >> "$GITHUB_OUTPUT"
 
+      # Security: Wrangler is configured for static asset serving only (see
+      # wrangler.jsonc). The uploaded content is pre-built HTML/CSS/JS with no
+      # server-side execution capability.
       - name: Deploy preview to Cloudflare Workers
         id: deploy
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: versions upload --preview-alias "pr-${{ steps.pr.outputs.number }}" --message "PR #${{ steps.pr.outputs.number }} preview"
+          command: >-
+            versions upload
+              --no-bundle
+              --preview-alias "pr-${{ steps.pr.outputs.number }}"
+              --message "PR #${{ steps.pr.outputs.number }} preview (${{ github.event.workflow_run.head_sha }})"
 
       - name: Hide old deploy preview comments
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: ${{ steps.pr.outputs.number }}
-            });
-            await Promise.all(
-              comments
-                .filter(c => c.body.includes('<!-- deploy-preview -->'))
-                .map(c => github.graphql(`
-                  mutation($id: ID!) {
-                    minimizeComment(input: { subjectId: $id, classifier: OUTDATED }) {
-                      minimizedComment { isMinimized }
-                    }
-                  }
-                `, { id: c.node_id }))
-            );
+            const { default: run } = await import('${{ github.workspace }}/.github/scripts/hide-old-deploy-comments.mjs');
+            await run({ github, context, prNumber: ${{ steps.pr.outputs.number }} });
 
       - name: Comment on PR (success)
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
