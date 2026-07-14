@@ -59,11 +59,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: >-
-            versions upload
-              --no-bundle
-              --preview-alias "pr-${{ steps.pr.outputs.number }}"
-              --message "PR #${{ steps.pr.outputs.number }} preview (${{ github.event.workflow_run.head_sha }})"
+          command: versions upload --no-bundle --preview-alias "pr-${{ steps.pr.outputs.number }}" --message "PR #${{ steps.pr.outputs.number }} preview (${{ github.event.workflow_run.head_sha }})"
 
       - name: Hide old deploy preview comments
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
