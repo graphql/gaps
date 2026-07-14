@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout wrangler config
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: main
           sparse-checkout: |
@@ -66,14 +66,14 @@ jobs:
               --message "PR #${{ steps.pr.outputs.number }} preview (${{ github.event.workflow_run.head_sha }})"
 
       - name: Hide old deploy preview comments
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const { default: run } = await import('${{ github.workspace }}/.github/scripts/hide-old-deploy-comments.mjs');
             await run({ github, context, prNumber: ${{ steps.pr.outputs.number }} });
 
       - name: Comment on PR (success)
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             await github.rest.issues.createComment({
@@ -91,7 +91,7 @@ jobs:
 
       - name: Comment on PR (failure)
         if: failure()
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             await github.rest.issues.createComment({
