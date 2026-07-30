@@ -28,7 +28,7 @@ jobs:
         run: npm ci
 
       - name: Sync CODEOWNERS
-        run: node scripts/sync-codeowners.js
+        run: node scripts/sync-codeowners.ts
 
       - name: Commit if changed
         run: |
