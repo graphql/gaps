@@ -1,0 +1,14 @@
+id: 4
+title: Field Extensions
+status: proposal
+authors:
+  - name: "Emily Goodwin"
+    email: "goodwin.y.emily@gmail.com"
+    githubUsername: "@egoodwinx"
+  - name: "Martin Bonnin"
+    email: "martin@mbonnin.net"
+    githubUsername: "@martinbonnin"
+sponsor: "@martinbonnin"
+discussion: "https://github.com/graphql/graphql-spec/issues/1162"
+summary: >
+  A way to add directive to existing field definitions using type system extensions.
