@@ -1,0 +1,28 @@
+name: Validate new GAP number
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-gap-number:
+    name: Validate new GAP id matches PR number
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate new GAP id matches PR number
+        run: node scripts/validate-new-gap-number.js --pr-number ${{ github.event.pull_request.number }}
