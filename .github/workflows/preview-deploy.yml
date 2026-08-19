@@ -68,7 +68,7 @@ jobs:
       # serving them as static assets. They must only come from trusted code.
       - name: Reject deployment config from artifact
         run: |
-          if [[ -e _site/_headers || -e _site/_redirects ]]; then
+          if [[ -e _site/.assetsignore || -e _site/_headers || -e _site/_redirects ]]; then
             echo "::error::Preview artifact contains Cloudflare configuration"
             exit 1
           fi
