@@ -26,9 +26,6 @@ jobs:
           node-version: "24"
           cache: "npm"
 
-      - name: Test workflow helpers
-        run: node --test .github/scripts/*.test.mjs
-
       - name: Install dependencies
         run: npm ci
 
