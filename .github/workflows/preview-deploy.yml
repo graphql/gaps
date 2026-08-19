@@ -43,17 +43,6 @@ jobs:
               expectedBaseBranch: 'main',
             });
 
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
-        with:
-          node-version: "24"
-
-      # Install before the Cloudflare token is exposed to the job. The action
-      # will verify and reuse this exact local version instead of installing a
-      # floating Wrangler release while holding the token.
-      - name: Install pinned Wrangler
-        run: npm install --no-save --package-lock=false --no-audit --no-fund wrangler@4.124.0
-
       # Security: actions/download-artifact handles zip extraction safely
       # (immune to zip-slip). Treat every extracted file as attacker-controlled.
       - name: Download build artifact
