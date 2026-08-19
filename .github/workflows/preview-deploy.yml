@@ -53,8 +53,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: _site
 
-      # These are valid Cloudflare configuration files, but the PR-built artifact
-      # cannot supply them. If main adds any, copy them from main into _site here.
+      # These are valid Cloudflare configuration files. The PR-built artifact must
+      # not ever supply these. If the main branch ever adds these files for real,
+      # copy them over.
       - name: Reject deployment config from artifact
         run: |
           if [[ -e _site/.assetsignore || -e _site/_headers || -e _site/_redirects ]]; then
