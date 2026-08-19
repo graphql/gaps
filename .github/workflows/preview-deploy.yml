@@ -110,9 +110,6 @@ jobs:
                 '<!-- deploy-preview -->',
                 '### 🚀 Deploy Preview',
                 '',
-                '> [!WARNING]',
-                '> This site was built from pull request code and should be treated as untrusted.',
-                '',
                 `- **This commit:** ${process.env.DEPLOYMENT_URL}`,
                 `- **This PR** <sub>(kept up to date)</sub>: https://pr-${prNumber}-gaps.graphql-foundation.workers.dev`
               ].join('\n')
