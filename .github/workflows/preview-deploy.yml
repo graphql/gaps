@@ -15,19 +15,36 @@ jobs:
     name: Deploy preview to Cloudflare
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' }}
+    concurrency:
+      group: preview-deploy-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+      cancel-in-progress: true
 
     steps:
       - name: Checkout wrangler config
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: main
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
           sparse-checkout: |
             wrangler.jsonc
             .github/scripts
 
+      - name: Resolve current PR
+        id: pr
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          result-encoding: string
+          script: |
+            const { default: resolveWorkflowRunPr } = await import('${{ github.workspace }}/.github/scripts/resolve-workflow-run-pr.mjs');
+            return resolveWorkflowRunPr({
+              github,
+              context,
+              expectedBaseBranch: 'main',
+            });
+
       # Security: actions/download-artifact handles zip extraction safely
-      # (immune to zip-slip), and the artifact only contains static HTML/CSS/JS
-      # built by the unprivileged preview-build workflow.
+      # (immune to zip-slip). Treat every extracted file as attacker-controlled.
       - name: Download build artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -36,19 +53,15 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: _site
 
-      - name: Get PR number
-        id: pr
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # These are valid Cloudflare configuration files. The PR-built artifact must
+      # not ever supply these. If the main branch ever adds these files for real,
+      # copy them over.
+      - name: Reject deployment config from artifact
         run: |
-          PR_NUM=$(gh pr list --repo "${{ github.repository }}" \
-            --head "${{ github.event.workflow_run.head_branch }}" \
-            --json number --jq '.[0].number')
-          if ! [[ "$PR_NUM" =~ ^[0-9]+$ ]]; then
-            echo "::error::Could not determine PR number"
+          if [[ -e _site/.assetsignore || -e _site/_headers || -e _site/_redirects ]]; then
+            echo "::error::Preview artifact contains Cloudflare configuration"
             exit 1
           fi
-          echo "number=$PR_NUM" >> "$GITHUB_OUTPUT"
 
       # Security: Wrangler is configured for static asset serving only (see
       # wrangler.jsonc). The uploaded content is pre-built HTML/CSS/JS with no
@@ -59,40 +72,51 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: versions upload --no-bundle --preview-alias "pr-${{ steps.pr.outputs.number }}" --message "PR #${{ steps.pr.outputs.number }} preview (${{ github.event.workflow_run.head_sha }})"
+          wranglerVersion: "4.124.0"
+          command: versions upload --no-bundle --preview-alias "pr-${{ steps.pr.outputs.result }}" --message "PR #${{ steps.pr.outputs.result }} preview (${{ github.event.workflow_run.head_sha }})"
 
       - name: Hide old deploy preview comments
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.result }}
         with:
           script: |
             const { default: run } = await import('${{ github.workspace }}/.github/scripts/hide-old-deploy-comments.mjs');
-            await run({ github, context, prNumber: ${{ steps.pr.outputs.number }} });
+            await run({ github, context, prNumber: Number(process.env.PR_NUMBER) });
 
       - name: Comment on PR (success)
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+          PR_NUMBER: ${{ steps.pr.outputs.result }}
         with:
           script: |
+            const prNumber = Number(process.env.PR_NUMBER);
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: ${{ steps.pr.outputs.number }},
+              issue_number: prNumber,
               body: [
                 '<!-- deploy-preview -->',
                 '### 🚀 Deploy Preview',
                 '',
-                '- **This commit:** ${{ steps.deploy.outputs.deployment-url }}',
-                '- **This PR** <sub>(kept up to date)</sub>: https://pr-${{ steps.pr.outputs.number }}-gaps.graphql-foundation.workers.dev'
+                `- **This commit:** ${process.env.DEPLOYMENT_URL}`,
+                `- **This PR** <sub>(kept up to date)</sub>: https://pr-${prNumber}-gaps.graphql-foundation.workers.dev`
               ].join('\n')
             });
 
+      # GitHub requires a PR number for this comment. If checkout or PR
+      # resolution fails, that number is unavailable.
       - name: Comment on PR (failure)
-        if: failure()
+        if: ${{ failure() && steps.pr.outcome == 'success' }}
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.result }}
         with:
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: ${{ steps.pr.outputs.number }},
-              body: 'Deploy preview failed.\n\n```\ngh run view ${{ github.run_id }} --repo ${{ github.repository }} --log-failed\n```'
+              issue_number: Number(process.env.PR_NUMBER),
+              body: `Deploy preview failed.\n\n\`\`\`\ngh run view ${context.runId} --repo ${context.repo.owner}/${context.repo.repo} --log-failed\n\`\`\``
             });
