@@ -53,8 +53,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: _site
 
-      # Cloudflare parses these files as deployment configuration rather than
-      # serving them as static assets. They must only come from trusted code.
+      # These are valid Cloudflare configuration files, but the PR-built artifact
+      # cannot supply them. Preview support would require trusted copies from main.
       - name: Reject deployment config from artifact
         run: |
           if [[ -e _site/.assetsignore || -e _site/_headers || -e _site/_redirects ]]; then
