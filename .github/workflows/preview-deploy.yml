@@ -54,7 +54,7 @@ jobs:
           path: _site
 
       # These are valid Cloudflare configuration files, but the PR-built artifact
-      # cannot supply them. Preview support would require trusted copies from main.
+      # cannot supply them. If main adds any, copy them from main into _site here.
       - name: Reject deployment config from artifact
         run: |
           if [[ -e _site/.assetsignore || -e _site/_headers || -e _site/_redirects ]]; then
