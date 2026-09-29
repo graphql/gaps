@@ -4,7 +4,7 @@
 
 ## Introduction
 
-:: This document specifies an API for obtaining sound static summaries of
+This document specifies an API for obtaining sound static summaries of
 GraphQL operations. An analysis supplies a small algebra; a shared engine handles
 GraphQL execution semantics and computes the summary.
 
@@ -124,12 +124,12 @@ engine rather than in every analysis.
 ### Scope
 
 This specification applies to statically analyzing a valid GraphQL
-[query, mutation, or subscription
-operation](https://spec.graphql.org/September2025/#sec-Language.Operations)
-against a valid schema. The engine treats all three operation types uniformly:
-the [selected operation's root
-type](https://spec.graphql.org/September2025/#sec-Root-Operation-Types) provides
-the initial parent scope, and selection sets are analyzed by the same rules.
+[operation](https://spec.graphql.org/September2025/#sec-Language.Operations)
+against a valid schema. The engine treats query, mutation, and subscription
+operations uniformly: the selected operation's
+[root type](https://spec.graphql.org/September2025/#sec-Root-Operation-Types)
+provides the initial parent scope, and selection sets are analyzed by the same
+rules.
 
 An individual algebra may distinguish fields under particular parent types,
 including the schema's query, mutation, and subscription root types, and
@@ -139,16 +139,16 @@ analysis-specific assumptions.
 
 The engine handles:
 
-- [named and inline
-  fragments](https://spec.graphql.org/September2025/#sec-Fragments);
-- object, interface, and union [type
-  conditions](https://spec.graphql.org/September2025/#sec-Type-Conditions);
+- named and inline
+  [fragments](https://spec.graphql.org/September2025/#sec-Language.Fragments);
+- [type conditions](https://spec.graphql.org/September2025/#sec-Type-Conditions)
+  over object, interface, and union types;
 - the built-in
   [`@include`](https://spec.graphql.org/September2025/#sec--include) and
   [`@skip`](https://spec.graphql.org/September2025/#sec--skip) directives;
-- [aliases](https://spec.graphql.org/September2025/#sec-Field-Alias) and
-  [response-name field
-  collection](https://spec.graphql.org/September2025/#sec-Field-Collection);
+- response-name
+  [collection](https://spec.graphql.org/September2025/#sec-Field-Collection),
+  including [aliases](https://spec.graphql.org/September2025/#sec-Field-Alias);
 - merging child selection sets from collected field occurrences; and
 - recursive analysis of nested composite fields and lists.
 
@@ -167,7 +167,7 @@ soundness obligations.
 
 ### Summary
 
-An analysis chooses a _Summary_ type. A summary describes possible operation
+:: An analysis chooses a _Summary_ type. A summary describes possible operation
 executions. It may be a number, tuple, set, function, or another immutable value.
 
 An analysis also defines an ordering on summaries. `a ≼ b` means that `b` safely
@@ -176,16 +176,23 @@ possibilities.
 
 ### Algebra
 
-An _Algebra_ defines four transfer operations over its summary domain:
+:: An _Algebra_ defines four transfer operations over its summary domain:
 
-- `empty()` returns the summary of no selected response fields. It is the
-  identity for simultaneous composition and the least summary.
-- `field(group, childSummary)` summarizes one collected response field after the
-  engine has summarized its merged child selection set.
-- `combine(left, right)` composes contributions that can occur together in one
-  response.
-- `join(left, right)` bounds alternative outcomes, such as different runtime
-  object types or values of an unresolved Boolean condition.
+empty
+: `empty()` returns the summary of no selected response fields. It is the
+identity for simultaneous composition and the least summary.
+
+field
+: `field(group, childSummary)` summarizes one collected response field after the
+engine has summarized its merged child selection set.
+
+combine
+: `combine(left, right)` composes contributions that can occur together in one
+response.
+
+join
+: `join(left, right)` bounds alternative outcomes, such as different runtime
+object types or values of an unresolved Boolean condition.
 
 The engine, not the analysis, determines whether contributions can occur
 together or are alternatives.
@@ -195,7 +202,7 @@ alternatives.
 
 ### Collected field group
 
-A _CollectedFieldGroup_ is a nonempty group of field occurrences that share one
+:: A _CollectedFieldGroup_ is a nonempty group of field occurrences that share one
 response name and can be collected into one executed response field in the
 represented case.
 
@@ -225,8 +232,8 @@ identity or membership in `fields`.
 
 For a valid operation, occurrences applicable to the same concrete parent object
 select the same field name and have equivalent arguments, as required by
-GraphQL [field-merging
-validation](https://spec.graphql.org/September2025/#sec-Field-Selection-Merging).
+GraphQL field-merging
+[validation](https://spec.graphql.org/September2025/#sec-Field-Selection-Merging).
 
 Multiple occurrences in one group represent one executed response field and
 must not be charged independently unless the analysis's concrete semantics
@@ -295,7 +302,7 @@ observation of every execution represented by the inputs.
 The algebra operates on summaries of selection sets. Its operations must satisfy
 the following laws for the engine's result to be sound.
 
-Let:
+Use the following notation:
 
 - `a ≼ b` mean that `b` safely covers everything covered by `a`;
 - `0` denote `empty()`;
@@ -320,8 +327,7 @@ a ⊗ b = b ⊗ a
 0 ⊗ a = a
 a ⊗ 0 = a
 0 ≼ a
-
-a ≼ a′ ∧ b ≼ b′ ⇒ a ⊗ b ≼ a′ ⊗ b′
+(a ≼ a′ ∧ b ≼ b′) ⇒ a ⊗ b ≼ a′ ⊗ b′
 ```
 
 **Alternative upper bound**
@@ -439,7 +445,7 @@ itself establish soundness.
 
 ## Engine API
 
-The recommended source-oriented entry point is:
+The recommended entry point function definition is:
 
 ```ts example
 interface AnalyzeOperationOptions<Summary> {
@@ -463,19 +469,18 @@ implementation-defined.
 
 ### Input preparation
 
-Before analysis, the source-oriented entry point must:
+Before analysis, the entry point function (`analyzeOperation`) must:
 
 1. parse the executable document when source text is supplied;
 2. validate the document against the schema;
 3. select the named operation, or select the only operation when the document
    contains exactly one; and
-4. when `variables` is present, coerce the supplied values according to GraphQL
-   [variable
-   coercion](https://spec.graphql.org/September2025/#sec-Coercing-Variable-Values)
-   and apply operation defaults.
+4. when `variables` is present, perform GraphQL variable
+   [coercion](https://spec.graphql.org/September2025/#sec-Coercing-Variable-Values)
+   on the supplied values and apply operation defaults.
 
 It must return an error for an invalid document, ambiguous or missing operation,
-invalid variable values, or omitted variables required by the algebra.
+invalid variable values, or omitted variables if required by the algebra.
 
 An implementation may also provide a lower-level API that accepts an already
 validated document, selected operation, and already-coerced variables. That API must
@@ -504,14 +509,14 @@ Boolean directive conditions from that environment, and the algebra may use the
 same coerced values when evaluating field arguments.
 
 An explicitly supplied empty map is not the same as omitting `variables`. The
-empty map still selects request-specific analysis and applies operation defaults.
+empty map still selects variable-dependent analysis and applies operation defaults.
 
 ## Example analyses
 
 ### IBM cost estimation
 
-The [IBM GraphQL Cost Directives
-specification](https://ibm.github.io/graphql-specs/cost-spec.html) is the
+The IBM GraphQL Cost Directives
+[specification](https://ibm.github.io/graphql-specs/cost-spec.html) is the
 canonical motivating application. Its summary contains independent type and
 field costs. Simultaneous contributions add componentwise, alternatives take a
 componentwise upper bound, and the field transfer applies schema `@cost` and
@@ -534,8 +539,8 @@ request with no explicit variable values so that operation defaults are applied.
 This specification uses IBM cost as an example of the API and soundness
 contract. It does not redefine the IBM directive schema or its cost rules.
 
-The [JavaScript reference
-implementation](https://github.com/duckki/graphql-static-analysis-js/blob/6ca5b86cbeeebf304d2becb42e08091969fe4f29/src/analyses/cost.ts#L255-L371)
+The JavaScript reference
+[implementation](https://github.com/duckki/graphql-static-analysis-js/blob/6ca5b86cbeeebf304d2becb42e08091969fe4f29/src/analyses/cost.ts#L255-L371)
 defines IBM cost as an algebra over the shared engine.
 
 ### Authorization capability combinations
@@ -543,8 +548,8 @@ defines IBM cost as an algebra over the shared engine.
 An authorization analysis can determine which protected fields may be accessed
 together instead of flattening all possibilities into one footprint. Its summary
 is a set of possible protected-field sets. Each member represents one combination
-of [field
-coordinates](https://spec.graphql.org/September2025/#sec-Schema-Coordinates)
+of field
+[coordinates](https://spec.graphql.org/September2025/#sec-Schema-Coordinates)
 that may be accessed together in an execution.
 
 `empty` returns `{∅}`, one possibility that accesses no protected fields. `field`
