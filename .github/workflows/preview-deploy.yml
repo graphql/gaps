@@ -1,0 +1,98 @@
+name: Deploy Preview
+
+on:
+  workflow_run:
+    workflows: ["Build Preview"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+
+jobs:
+  deploy:
+    name: Deploy preview to Cloudflare
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' }}
+
+    steps:
+      - name: Checkout wrangler config
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          ref: main
+          sparse-checkout: |
+            wrangler.jsonc
+            .github/scripts
+
+      # Security: actions/download-artifact handles zip extraction safely
+      # (immune to zip-slip), and the artifact only contains static HTML/CSS/JS
+      # built by the unprivileged preview-build workflow.
+      - name: Download build artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: preview-build
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: _site
+
+      - name: Get PR number
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUM=$(gh pr list --repo "${{ github.repository }}" \
+            --head "${{ github.event.workflow_run.head_branch }}" \
+            --json number --jq '.[0].number')
+          if ! [[ "$PR_NUM" =~ ^[0-9]+$ ]]; then
+            echo "::error::Could not determine PR number"
+            exit 1
+          fi
+          echo "number=$PR_NUM" >> "$GITHUB_OUTPUT"
+
+      # Security: Wrangler is configured for static asset serving only (see
+      # wrangler.jsonc). The uploaded content is pre-built HTML/CSS/JS with no
+      # server-side execution capability.
+      - name: Deploy preview to Cloudflare Workers
+        id: deploy
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: versions upload --no-bundle --preview-alias "pr-${{ steps.pr.outputs.number }}" --message "PR #${{ steps.pr.outputs.number }} preview (${{ github.event.workflow_run.head_sha }})"
+
+      - name: Hide old deploy preview comments
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { default: run } = await import('${{ github.workspace }}/.github/scripts/hide-old-deploy-comments.mjs');
+            await run({ github, context, prNumber: ${{ steps.pr.outputs.number }} });
+
+      - name: Comment on PR (success)
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.pr.outputs.number }},
+              body: [
+                '<!-- deploy-preview -->',
+                '### 🚀 Deploy Preview',
+                '',
+                '- **This commit:** ${{ steps.deploy.outputs.deployment-url }}',
+                '- **This PR** <sub>(kept up to date)</sub>: https://pr-${{ steps.pr.outputs.number }}-gaps.graphql-foundation.workers.dev'
+              ].join('\n')
+            });
+
+      - name: Comment on PR (failure)
+        if: failure()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.pr.outputs.number }},
+              body: 'Deploy preview failed.\n\n```\ngh run view ${{ github.run_id }} --repo ${{ github.repository }} --log-failed\n```'
+            });
