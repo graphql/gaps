@@ -1,0 +1,16 @@
+id: 54
+title: "Identity: @strong"
+summary: >
+  A schema directive marking a type as having a strong identity — an identifier
+  unique across all values of the same type — plus a `strong_id__` meta-field on
+  every type. Foundation for the companion `@fetchable` directive.
+status: proposal
+authors:
+  - name: "Matt Mahoney"
+    email: "mahoney.mattj@gmail.com"
+    githubUsername: "@mjmahone"
+sponsor: "@TBD"
+discussion: "https://github.com/graphql/gaps/pull/54"
+related:
+  - 49
+  - 55
