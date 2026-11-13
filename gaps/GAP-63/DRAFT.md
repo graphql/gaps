@@ -113,7 +113,7 @@ Additional columns may be represented as additional fields.
 
 Changes are exposed via a field on `Mutation` to return a Change object.
 
-A field that returns a change object must do so without waiting for it to complete.
+A resolver that returns a change object must do so without waiting for the *work* to complete.
 
 ```graphql example
 type RefundChange implements Change {
