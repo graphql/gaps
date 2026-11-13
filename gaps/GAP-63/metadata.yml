@@ -1,0 +1,13 @@
+id: 0
+title: Change Tables
+summary: >
+  A convention for running slow operations in the background, recording their
+  progress in a database table that clients poll, with an optional GraphQL
+  schema over it.
+status: proposal
+authors:
+  - name: "Mark Larah"
+    email: "mark@larah.me"
+    githubUsername: "@magicmark"
+sponsor: "@magicmark"
+discussion: "https://github.com/graphql/gaps/pull/63"
